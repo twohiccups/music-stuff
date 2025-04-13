@@ -9,7 +9,7 @@ export default function Home() {
       </Typography>
 
 
-      <Card>
+      <Card sx={{padding: 4}}>
         <Link href="/chords-table">Chords Table</Link>
       </Card>
     </Box>
