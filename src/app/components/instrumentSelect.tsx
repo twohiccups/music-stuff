@@ -1,4 +1,4 @@
-import { Box, MenuItem, Select, Typography } from "@mui/material";
+import { Box, MenuItem, Select } from "@mui/material";
 
 interface InstrumentSelectProps {
     instrument: string;
@@ -8,7 +8,6 @@ const InstrumentSelect = ({ instrument, setInstrument }: InstrumentSelectProps) 
     return (
         <>
             <Box sx={{ my: 2, textAlign: "center" }}>
-                <Typography variant="h6">Select Instrument</Typography>
                 <Select
                     value={instrument}
                     onChange={(e) => setInstrument(e.target.value)}

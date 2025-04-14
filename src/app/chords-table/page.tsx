@@ -1,18 +1,16 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import * as Tone from "tone";
-import {
-    Box,
-    Container,
-    Typography,
-} from "@mui/material";
-import PianoKeyboard from "@components/pianoKeyboard";
-import ChordNotation from "@components/chordNotation";
-import ChordTable from "@components/chordTable";
+import { Box, Container, Typography } from "@mui/material";
 import { chords } from "../data/constants";
-import BaseNoteSlider from "@components/baseNoteSlider";
-import InstrumentSelect from "@components/instrumentSelect";
+import useInstruments from "@src/hooks/useInstruments";
+import InstrumentSelect from "@components/InstrumentSelect";
+import ChordNotation from "@components/ChordNotation";
+import ChordTable from "@components/ChordTable";
+import PianoKeyboard from "@components/PianoKeyboard";
+import MiniPianoKeyboard from "@components/MiniPianoKeyboard";
+import OctaveSlider from "@components/OctaveSlider";
 
 const maskToChord = (base: number, mask: number[]): number[] => {
     return mask.map((interval) =>
@@ -20,52 +18,20 @@ const maskToChord = (base: number, mask: number[]): number[] => {
     );
 };
 
+// Page.tsx
 export default function Page() {
     const [instrument, setInstrument] = useState<string>("synth");
-    const [baseNote, setBaseNote] = useState<number>(48);
-    const [currentSynth, setCurrentSynth] = useState<Tone.PolySynth | Tone.Sampler | null>(null);
+    const [selectedNote, setSelectedNote] = useState<string>("C");
+    const [octave, setOctave] = useState<number>(4);
     const [activeNotes, setActiveNotes] = useState<string[]>([]);
     const [currentChordType, setCurrentChordType] = useState<string>("");
     const [currentInversion, setCurrentInversion] = useState<string>("");
 
+    const currentSynth = useInstruments(instrument);
+
+    // Compute base MIDI note from note + octave
+    const baseNote = Tone.Frequency(`${selectedNote}${octave}`).toMidi();
     const startMidi = baseNote - 2;
-
-    useEffect(() => {
-        let synth: Tone.PolySynth | Tone.Sampler;
-
-        if (instrument === "piano") {
-            synth = new Tone.Sampler({
-                urls: {
-                    C4: "C4.mp3",
-                    D4: "D4.mp3",
-                    E4: "E4.mp3",
-                },
-                baseUrl: "https://tonejs.github.io/audio/salamander/",
-                onload: () => console.log("Piano Loaded"),
-            }).toDestination();
-        } else if (instrument === "violin") {
-            synth = new Tone.Sampler({
-                urls: {
-                    C4: "violin_C4.mp3",
-                    D4: "violin_D4.mp3",
-                    E4: "violin_E4.mp3",
-                },
-                baseUrl: "https://YOUR_VIOLIN_SAMPLE_URL_HERE/",
-                onload: () => console.log("Violin Loaded"),
-            }).toDestination();
-        } else {
-            synth = new Tone.PolySynth(Tone.Synth).toDestination();
-        }
-
-        setCurrentSynth(synth);
-
-        return () => {
-            if (synth instanceof Tone.PolySynth) {
-                synth.releaseAll();
-            }
-            synth.dispose();
-        };
-    }, [instrument]);
 
     const playChord = (type: string, inversion: string) => {
         if (!currentSynth || !chords[type] || !chords[type][inversion]) return;
@@ -80,11 +46,11 @@ export default function Page() {
 
         if (currentSynth instanceof Tone.PolySynth) {
             currentSynth.releaseAll();
-            currentSynth.triggerAttackRelease(chordFrequencies, "1n");
+            currentSynth.triggerAttackRelease(chordFrequencies, "1m");
         } else if (currentSynth instanceof Tone.Sampler) {
             currentSynth.releaseAll();
             chordFrequencies.forEach((freq) =>
-                currentSynth.triggerAttackRelease(freq, "1n")
+                currentSynth.triggerAttackRelease(freq, "2m")
             );
         }
     };
@@ -97,11 +63,15 @@ export default function Page() {
 
             <InstrumentSelect instrument={instrument} setInstrument={setInstrument} />
 
+            {/* Octave Slider */}
+            <OctaveSlider octave={octave} setOctave={setOctave} />
 
-            {/* Base Note Slider with Octave Controls */}
-            <BaseNoteSlider baseNote={baseNote} setBaseNote={setBaseNote} />
+            {/* Note Selector */}
+            <MiniPianoKeyboard
+                baseNote={selectedNote}
+                setBaseNote={setSelectedNote}
+            />
 
-            {/* Chord Notation */}
             {currentChordType && currentInversion && (
                 <ChordNotation
                     baseNote={baseNote}
@@ -110,7 +80,6 @@ export default function Page() {
                 />
             )}
 
-            {/* Chord Table */}
             <ChordTable playChord={playChord} />
 
             <Box
@@ -129,9 +98,7 @@ export default function Page() {
                 <PianoKeyboard activeNotes={activeNotes} startMidi={startMidi} />
             </Box>
 
-            <Box sx={{ minHeight: '8rem' }} />
-
-
+            <Box sx={{ minHeight: "8rem" }} />
         </Container>
     );
 }
