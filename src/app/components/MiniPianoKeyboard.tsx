@@ -1,7 +1,7 @@
 import React, { SetStateAction } from "react";
 import { Box } from "@mui/material";
 
-const FUNKY_WHITE_KEY_WIDTH = 50; // 7 white keys will total 350px in width
+const FUNKY_WHITE_KEY_WIDTH = 40; 
 const FUNKY_WHITE_KEY_HEIGHT = 120;
 const FUNKY_BLACK_KEY_WIDTH = 30;   // Maintain proportional width (previously 0.6 * white key width)
 const FUNKY_BLACK_KEY_HEIGHT = 80;

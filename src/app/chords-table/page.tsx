@@ -2,7 +2,18 @@
 
 import React, { useState } from "react";
 import * as Tone from "tone";
-import { Box, Container, Typography } from "@mui/material";
+import {
+    Box,
+    Button,
+    Container,
+    Typography,
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    DialogActions,
+    useMediaQuery,
+    useTheme,
+} from "@mui/material";
 import { chords } from "../data/constants";
 import useInstruments from "@src/hooks/useInstruments";
 import InstrumentSelect from "@components/InstrumentSelect";
@@ -20,7 +31,7 @@ const maskToChord = (base: number, mask: number[]): number[] => {
 
 // Page.tsx
 export default function Page() {
-    const [instrument, setInstrument] = useState<string>("synth");
+    const [instrument, setInstrument] = useState<string>("violin");
     const [selectedNote, setSelectedNote] = useState<string>("C");
     const [octave, setOctave] = useState<number>(4);
     const [activeNotes, setActiveNotes] = useState<string[]>([]);
@@ -32,6 +43,24 @@ export default function Page() {
     // Compute base MIDI note from note + octave
     const baseNote = Tone.Frequency(`${selectedNote}${octave}`).toMidi();
     const startMidi = baseNote - 2;
+
+    // Use the theme and media query to detect mobile
+    const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+
+    // Modal dialog state for settings
+    const [settingsOpen, setSettingsOpen] = useState<boolean>(false);
+
+    // Shared settings content
+    const settingsContent = (
+        <>
+            <InstrumentSelect instrument={instrument} setInstrument={setInstrument} />
+            <Box>
+                <OctaveSlider octave={octave} setOctave={setOctave} />
+                <MiniPianoKeyboard baseNote={selectedNote} setBaseNote={setSelectedNote} />
+            </Box>
+        </>
+    );
 
     const playChord = (type: string, inversion: string) => {
         if (!currentSynth || !chords[type] || !chords[type][inversion]) return;
@@ -49,36 +78,37 @@ export default function Page() {
             currentSynth.triggerAttackRelease(chordFrequencies, "1m");
         } else if (currentSynth instanceof Tone.Sampler) {
             currentSynth.releaseAll();
-            chordFrequencies.forEach((freq) =>
-                currentSynth.triggerAttackRelease(freq, "2m")
-            );
+            chordFrequencies.forEach((freq) => currentSynth.triggerAttackRelease(freq, "2m"));
         }
     };
 
     return (
-        <Container>
+        <Container disableGutters>
             <Typography variant="h4" align="center" gutterBottom>
                 Chord Player
             </Typography>
 
-            <InstrumentSelect instrument={instrument} setInstrument={setInstrument} />
+            {/* Settings Button */}
+            <Box sx={{ textAlign: "center", my: 2 }}>
+                <Button variant="contained" onClick={() => setSettingsOpen(true)}>
+                    Settings
+                </Button>
+            </Box>
 
-            {/* Octave Slider */}
-            <OctaveSlider octave={octave} setOctave={setOctave} />
-
-            {/* Note Selector */}
-            <MiniPianoKeyboard
-                baseNote={selectedNote}
-                setBaseNote={setSelectedNote}
-            />
-
-            {currentChordType && currentInversion && (
-                <ChordNotation
-                    baseNote={baseNote}
-                    chordType={currentChordType}
-                    inversion={currentInversion}
-                />
-            )}
+            {/* Settings Modal (used on both desktop and mobile) */}
+            <Dialog
+                open={settingsOpen}
+                onClose={() => setSettingsOpen(false)}
+                fullWidth
+                fullScreen={isMobile}
+                disableScrollLock
+            >
+                <DialogTitle>Settings</DialogTitle>
+                <DialogContent>{settingsContent}</DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setSettingsOpen(false)}>Close</Button>
+                </DialogActions>
+            </Dialog>
 
             <ChordTable playChord={playChord} />
 
@@ -96,6 +126,13 @@ export default function Page() {
                 }}
             >
                 <PianoKeyboard activeNotes={activeNotes} startMidi={startMidi} />
+                {currentChordType && currentInversion && (
+                    <ChordNotation
+                        baseNote={baseNote}
+                        chordType={currentChordType}
+                        inversion={currentInversion}
+                    />
+                )}
             </Box>
 
             <Box sx={{ minHeight: "8rem" }} />

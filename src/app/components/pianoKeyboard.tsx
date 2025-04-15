@@ -2,25 +2,18 @@ import React from "react";
 import { Box } from "@mui/material";
 import * as Tone from "tone";
 
-const WHITE_KEY_WIDTH = 40;
-const WHITE_KEY_HEIGHT = 150;
-const BLACK_KEY_WIDTH = 25;
-const BLACK_KEY_HEIGHT = 90;
+const DESIGN_CONTAINER_WIDTH = 700; // px
+const DESIGN_CONTAINER_HEIGHT = 120; // px
+const NUM_WHITE_KEYS = 14;
 
-// Set a fixed number of white keys
-const FIXED_WHITE_KEY_COUNT = 14;
-const CONTAINER_WIDTH = FIXED_WHITE_KEY_COUNT * WHITE_KEY_WIDTH; // 560 px
-const CONTAINER_HEIGHT = WHITE_KEY_HEIGHT; // 150 px
+// Define key size constants to use for black keys.
+const BLACK_KEY_WIDTH_PERCENT = (30 / DESIGN_CONTAINER_WIDTH) * 100; // ≈ 4.29%
+const BLACK_KEY_HEIGHT_PERCENT = (80 / DESIGN_CONTAINER_HEIGHT) * 100; // ≈ 66.67%
+
 
 interface PianoKeyboardProps {
     activeNotes: string[];
     startMidi: number;
-}
-
-interface KeyPosition {
-    midi: number;
-    left: number; // in pixels (original design)
-    note: string;
 }
 
 export default function PianoKeyboard({ activeNotes, startMidi }: PianoKeyboardProps) {
@@ -28,7 +21,7 @@ export default function PianoKeyboard({ activeNotes, startMidi }: PianoKeyboardP
     const whiteKeys: number[] = [];
 
     // Collect white keys until we have the fixed count.
-    while (whiteKeys.length < FIXED_WHITE_KEY_COUNT) {
+    while (whiteKeys.length < NUM_WHITE_KEYS) {
         const note = Tone.Frequency(endMidi, "midi").toNote();
         if (!note.includes("#")) {
             whiteKeys.push(endMidi);
@@ -36,69 +29,78 @@ export default function PianoKeyboard({ activeNotes, startMidi }: PianoKeyboardP
         endMidi++;
     }
 
-    // Generate all MIDI numbers in the range.
+    // Generate all MIDI numbers in our range.
     const midiNumbers: number[] = [];
     for (let m = startMidi; m < endMidi; m++) {
         midiNumbers.push(m);
     }
 
-    // Calculate white key positions in pixels.
-    const whiteKeyPositions: KeyPosition[] = whiteKeys.map((m, i) => ({
+    // Map white keys and include their index. We’ll use the index for CSS calc.
+    const whiteKeyPositions: { midi: number; note: string; index: number }[] = whiteKeys.map((m, i) => ({
         midi: m,
-        left: i * WHITE_KEY_WIDTH,
         note: Tone.Frequency(m, "midi").toNote() as string,
+        index: i,
     }));
 
-    // Calculate black key positions relative to the preceding white key.
-    const blackKeyPositions: KeyPosition[] = midiNumbers
-        .filter(m => Tone.Frequency(m, "midi").toNote().includes("#"))
+    // Calculate black key positions.
+    // For each black key, find the preceding white key (largest white key with a lower midi value)
+    // and note its index. Then position the black key using CSS calc so it sits centered on the gap.
+    const blackKeyPositions: { midi: number; note: string; whiteIndex: number }[] = midiNumbers
+        .filter((m) => {
+            const note = Tone.Frequency(m, "midi").toNote() as string;
+            return note.includes("#");
+        })
         .map((m) => {
             const note = Tone.Frequency(m, "midi").toNote() as string;
-            const whiteIndex = whiteKeys.indexOf(m - 1); // Assuming the preceding white key is m - 1.
-            if (whiteIndex === -1) return null;
-            const left = whiteKeyPositions[whiteIndex].left + WHITE_KEY_WIDTH - (BLACK_KEY_WIDTH / 2);
-            return { midi: m, left, note };
+            // Get the most recent white key (by midi value) that comes before this black key.
+            const precedingWhiteKey = whiteKeyPositions.filter((wk) => wk.midi < m).slice(-1)[0];
+            if (!precedingWhiteKey) return null;
+            return { midi: m, note, whiteIndex: precedingWhiteKey.index };
         })
-        .filter((bk): bk is KeyPosition => bk !== null);
+        .filter((bk): bk is { midi: number; note: string; whiteIndex: number } => bk !== null);
 
     return (
         <Box
             sx={{
                 position: "relative",
-                // On desktop: fixed pixel dimensions; on mobile: full width with aspect ratio.
-                width: { xs: "100%", sm: `${CONTAINER_WIDTH}px` },
-                height: { xs: "auto", sm: `${CONTAINER_HEIGHT}px` },
-                // On mobile, use aspect-ratio to compute height.
-                aspectRatio: { xs: `${CONTAINER_WIDTH} / ${CONTAINER_HEIGHT}`, sm: "unset" },
-                margin: "0px auto",
-                border: "2px solid black",
+                width: "100%",
+                maxWidth: `${DESIGN_CONTAINER_WIDTH}px`,
+                // Enforce the design's aspect ratio (700 x 120)
+                aspectRatio: `${DESIGN_CONTAINER_WIDTH} / ${DESIGN_CONTAINER_HEIGHT}`,
+                backgroundColor: "#f0f0f0",
+                margin: "0 auto",
             }}
         >
-            {/* White Keys */}
+            {/* White keys using CSS calc for precise positioning */}
             {whiteKeyPositions.map((wk) => (
                 <Box
                     key={wk.midi}
                     sx={{
                         position: "absolute",
-                        left: { xs: `${(wk.left / CONTAINER_WIDTH) * 100}%`, sm: wk.left },
-                        width: { xs: `${(WHITE_KEY_WIDTH / CONTAINER_WIDTH) * 100}%`, sm: WHITE_KEY_WIDTH },
+                        // Calculate left: each white key occupies equal space.
+                        left: `calc(${wk.index} * (100% / ${NUM_WHITE_KEYS}))`,
+                        width: `calc(100% / ${NUM_WHITE_KEYS})`,
                         height: "100%",
-                        border: "1px solid black",
+                        border: "1px solid #666",
+                        borderRadius: "0 0 6px 6px",
                         backgroundColor: activeNotes.includes(wk.note) ? "#FFA500" : "white",
                         boxSizing: "border-box",
+                        cursor: "pointer",
+                        boxShadow: "0 2px 4px rgba(0, 0, 0, 0.2)",
+                        transition: "background-color 0.2s ease",
+
                     }}
                 >
-                    {/* Label the white keys that represent a C note */}
+                    {/* Label white keys that represent a C note */}
                     {wk.note.startsWith("C") && (
                         <Box
                             sx={{
                                 position: "absolute",
-                                bottom: 4,
+                                bottom: 2,
                                 left: 0,
                                 right: 0,
                                 textAlign: "center",
-                                fontSize: "0.7em",
-                                color: "black",
+                                fontSize: "0.8em",
                                 pointerEvents: "none",
                             }}
                         >
@@ -108,19 +110,25 @@ export default function PianoKeyboard({ activeNotes, startMidi }: PianoKeyboardP
                 </Box>
             ))}
 
-            {/* Black Keys */}
+            {/* Black keys using CSS calc for precise positioning */}
             {blackKeyPositions.map((bk) => (
                 <Box
                     key={bk.midi}
                     sx={{
                         position: "absolute",
-                        left: { xs: `${(bk.left / CONTAINER_WIDTH) * 100}%`, sm: bk.left },
-                        width: { xs: `${(BLACK_KEY_WIDTH / CONTAINER_WIDTH) * 100}%`, sm: BLACK_KEY_WIDTH },
-                        height: { xs: `${(BLACK_KEY_HEIGHT / CONTAINER_HEIGHT) * 100}%`, sm: BLACK_KEY_HEIGHT },
-                        backgroundColor: activeNotes.includes(bk.note) ? "#FF0500" : "black",
-                        border: "1px solid #333",
-                        borderRadius: "0 0 3px 3px",
+                        // The black key's left position is calculated from the preceding white key:
+                        // (whiteIndex + 1) * (100% / NUM_WHITE_KEYS) gives the right edge of the white key.
+                        // Then subtract half the black key’s width to center the black key.
+                        left: `calc((${bk.whiteIndex} + 1) * (100% / ${NUM_WHITE_KEYS}) - (${BLACK_KEY_WIDTH_PERCENT}% / 2))`,
+                        width: `${BLACK_KEY_WIDTH_PERCENT}%`,
+                        height: `${BLACK_KEY_HEIGHT_PERCENT}%`,
+                        backgroundColor: activeNotes.includes(bk.note) ? "#FF4500" : "black",
+                        border: "1px solid #222",
+                        borderRadius: "0 0 4px 4px",
                         zIndex: 2,
+                        cursor: "pointer",
+                        boxShadow: "0 1px 3px rgba(0, 0, 0, 0.3)",
+                        transition: "background-color 0.2s ease",
                     }}
                 />
             ))}
