@@ -84,7 +84,7 @@ export default function ChordNotation({
         .toNote()
         .replace(/\d+$/, "");
     // Replace sharp signs with a Unicode sharp for better spacing.
-    baseNoteName = baseNoteName.replace(/#/g, "♯");
+    baseNoteName = baseNoteName.replace(/#/g, "\\mathtt{♯}");
 
     // Use the preformatted math code from the mapping.
     const suffix = chordSuffix[chordType] ?? chordType;
@@ -95,18 +95,15 @@ export default function ChordNotation({
             ? `\\left(\\frac{${inversionFigure.replace("/", "}{")}}\\right)`
             : "";
     // Build the final LaTeX chord string.
-    const chordTex = `$${baseNoteName}${suffix}${latexInversion}$`;
+    const chordTex = `$\\mathbf{${baseNoteName}${suffix}${latexInversion}}$`;
 
     return (
         <MathJaxContext version={3} config={config}>
             <Box sx={{ mt: 4, textAlign: "center" }}>
                 {/* The key forces MathJax to re-render when chordTex changes */}
                 <MathJax key={chordTex}>
-                    <div style={{ fontSize: "2rem" }}>Chord: {chordTex}</div>
+                    <div style={{ fontSize: "2rem" }}>{chordTex}</div>
                 </MathJax>
-                <div style={{ marginTop: 8, fontSize: "1rem" }}>
-                    Notes: {noteNames.join(", ")}
-                </div>
             </Box>
         </MathJaxContext>
     );

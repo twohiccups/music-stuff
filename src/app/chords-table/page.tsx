@@ -13,6 +13,7 @@ import {
   DialogActions,
   useMediaQuery,
   useTheme,
+  Divider,
 } from "@mui/material";
 import { chords } from "../data/constants";
 import useInstruments from "@src/hooks/useInstruments";
@@ -22,12 +23,20 @@ import ChordTable from "@components/ChordTable";
 import PianoKeyboard from "@components/PianoKeyboard";
 import MiniPianoKeyboard from "@components/MiniPianoKeyboard";
 import OctaveSlider from "@components/OctaveSlider";
+import SettingsIcon from "@mui/icons-material/Settings";
+import InfoIcon from "@mui/icons-material/Info";
+import MenuIcon from "@mui/icons-material/Menu";
+import CloseIcon from "@mui/icons-material/Close"
+import { SpeedDial, SpeedDialAction, SpeedDialIcon } from "@mui/material";
+
 
 const maskToChord = (base: number, mask: number[]): number[] => {
   return mask.map((interval) =>
     Tone.Frequency(base + interval, "midi").toFrequency()
   );
 };
+
+
 
 // Page.tsx
 export default function Page() {
@@ -82,18 +91,15 @@ export default function Page() {
     }
   };
 
+
+
+
   return (
     <Container disableGutters>
-      <Typography variant="h4" align="center" gutterBottom>
-        Chord Player
+      <Typography variant="h3" fontFamily="'Georgia', serif" textAlign="center">
+        🎼 Chords Table
       </Typography>
-
-      {/* Settings Button */}
-      <Box sx={{ textAlign: "center", my: 2 }}>
-        <Button variant="contained" onClick={() => setSettingsOpen(true)}>
-          Settings
-        </Button>
-      </Box>
+      <Divider sx={{ my: 2 }} />
 
       {/* Settings Modal (used on both desktop and mobile) */}
       <Dialog
@@ -125,7 +131,19 @@ export default function Page() {
           },
         }}
       >
-        <PianoKeyboard activeNotes={activeNotes} startMidi={startMidi} />
+
+        <PianoKeyboard
+          activeNotes={activeNotes}
+          startMidi={startMidi}
+          activeWhiteColor="#A2D2FF"              // Light sky blue
+          activeBlackColor="#390EA2"              // Deeper soft blue
+          activeWhiteContrastColor="#003049"      // Dark navy (great on light blue)
+          activeBlackContrastColor="white"        // Classic clean contrast
+        />
+
+
+
+
         {currentChordType && currentInversion && (
           <ChordNotation
             baseNote={baseNote}
@@ -133,9 +151,35 @@ export default function Page() {
             inversion={currentInversion}
           />
         )}
-      </Box>
 
+
+      </Box>
       <Box sx={{ minHeight: "8rem" }} />
+
+
+      <SpeedDial
+        ariaLabel="Quick actions"
+        icon={<SpeedDialIcon icon={<MenuIcon />} openIcon={<CloseIcon />} />}
+        sx={{
+          position: "fixed",
+          bottom: 16,
+          right: 16,
+          zIndex: 1201,
+        }}
+      >
+        <SpeedDialAction
+          icon={<SettingsIcon />}
+          tooltipTitle="Settings"
+          onClick={() => setSettingsOpen(true)}
+        />
+        <SpeedDialAction
+          icon={<InfoIcon />}
+          tooltipTitle="Info"
+          onClick={() => alert("This is a chord player. Choose a chord and hear how it sounds.")}
+        />
+      </SpeedDial>
+
+
     </Container>
   );
 }

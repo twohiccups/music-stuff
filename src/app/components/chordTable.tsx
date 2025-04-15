@@ -70,7 +70,7 @@ export default function ChordTable({ playChord }: ChordTableProps) {
                             justifyContent: "left",
                             textAlign: "left",
                             fontWeight: "bold",
-                            transform: "rotate(-60deg)",
+                            transform: "rotate(-50deg)",
                             transformOrigin: "left bottom",
                             position: "relative",
                             left: "50px",
@@ -97,6 +97,9 @@ export default function ChordTable({ playChord }: ChordTableProps) {
                                 "@media (max-width: 1000px)": {
                                     whiteSpace: "wrap",
                                 },
+                                padding: 1,
+                                borderRadius: 2
+
                             }}
                         >
                             {type}
@@ -126,7 +129,7 @@ export default function ChordTable({ playChord }: ChordTableProps) {
                                 sx={{
                                     whiteSpace: "nowrap",
                                     fontWeight: "bold",
-                                    color: selectedInversion === key ? "blue" : "inherit", // Change text color temporarily
+                                    color: selectedInversion === key ? "blue" : "inherit",
                                     transition: "color 0.3s ease",
                                 }}
                             >
@@ -144,6 +147,8 @@ export default function ChordTable({ playChord }: ChordTableProps) {
                                     disabled={!chordExists}
                                     variant="outlined"
                                     sx={{
+                                        borderRadius: 5,
+                                        boxShadow: "0px 3px 2px #488F4B",
                                         width: "100%",
                                         aspectRatio: "1/1",
                                         minWidth: 40,
