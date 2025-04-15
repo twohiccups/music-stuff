@@ -148,7 +148,7 @@ export default function ChordTable({ playChord }: ChordTableProps) {
                                     variant="outlined"
                                     sx={{
                                         borderRadius: 5,
-                                        boxShadow: "0px 3px 2px #488F4B",
+                                        boxShadow: "0px 3px 2px #581B7E",
                                         width: "100%",
                                         aspectRatio: "1/1",
                                         minWidth: 40,

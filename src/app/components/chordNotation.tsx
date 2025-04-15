@@ -4,10 +4,6 @@ import { Box } from "@mui/material";
 import { MathJax, MathJaxContext } from "better-react-mathjax";
 import { chords } from "../data/constants";
 
-const config = {
-    loader: { load: ["input/asciimath"] },
-    tex: { inlineMath: [["$", "$"]] },
-};
 
 interface ChordNotationProps {
     baseNote: number;
@@ -15,7 +11,6 @@ interface ChordNotationProps {
     inversion: string;
 }
 
-// Updated chord suffix mapping with MathJax inline code for numeric parts.
 const chordSuffix: { [key: string]: string } = {
     major: "",
     minor: "m",
@@ -36,6 +31,7 @@ const chordSuffix: { [key: string]: string } = {
 };
 
 const getInversionFigure = (chordType: string, inversionKey: string): string => {
+
     let inversionIndex = 0;
     if (inversionKey === "inv1") inversionIndex = 1;
     if (inversionKey === "inv2") inversionIndex = 2;
@@ -60,16 +56,18 @@ const getInversionFigure = (chordType: string, inversionKey: string): string => 
     return "";
 };
 
-const maskToChord = (base: number, mask: number[]): string[] => {
-    return mask.map((interval) => Tone.Frequency(base + interval, "midi").toNote());
-};
-
 export default function ChordNotation({
     baseNote,
     chordType,
     inversion,
 }: ChordNotationProps) {
-    // Guard against missing chord data.
+
+    const config = {
+        loader: { load: ["input/asciimath"] },
+        tex: { inlineMath: [["$", "$"]] },
+    };
+
+
     if (!chords[chordType] || !chords[chordType][inversion]) {
         return (
             <Box sx={{ mt: 4, textAlign: "center" }}>
@@ -78,18 +76,16 @@ export default function ChordNotation({
         );
     }
 
-    const noteNames = maskToChord(baseNote, chords[chordType][inversion]);
     // Get the base note letter (e.g. "C#" or "F#") without the octave number.
     let baseNoteName = Tone.Frequency(baseNote, "midi")
         .toNote()
         .replace(/\d+$/, "");
     // Replace sharp signs with a Unicode sharp for better spacing.
-    baseNoteName = baseNoteName.replace(/#/g, "\\mathtt{♯}");
+    baseNoteName = baseNoteName.replace(/#/g, "^{♯}");
 
     // Use the preformatted math code from the mapping.
     const suffix = chordSuffix[chordType] ?? chordType;
     const inversionFigure = getInversionFigure(chordType, inversion);
-
     const latexInversion =
         inversionFigure && inversionFigure.includes("/")
             ? `\\left(\\frac{${inversionFigure.replace("/", "}{")}}\\right)`
@@ -98,10 +94,9 @@ export default function ChordNotation({
     const chordTex = `$\\mathbf{${baseNoteName}${suffix}${latexInversion}}$`;
 
     return (
-        <MathJaxContext version={3} config={config}>
+        <MathJaxContext config={config}>
             <Box sx={{ mt: 4, textAlign: "center" }}>
-                {/* The key forces MathJax to re-render when chordTex changes */}
-                <MathJax key={chordTex}>
+                <MathJax >
                     <div style={{ fontSize: "2rem" }}>{chordTex}</div>
                 </MathJax>
             </Box>
