@@ -1,7 +1,13 @@
 import React from "react";
 import * as Tone from "tone";
-import { Box, Typography } from "@mui/material";
+import { Box } from "@mui/material";
+import { MathJax, MathJaxContext } from "better-react-mathjax";
 import { chords } from "../data/constants";
+
+const config = {
+    loader: { load: ["input/asciimath"] },
+    tex: { inlineMath: [["$", "$"]] },
+};
 
 interface ChordNotationProps {
     baseNote: number;
@@ -9,7 +15,7 @@ interface ChordNotationProps {
     inversion: string;
 }
 
-// Map chord types to common suffixes.
+// Updated chord suffix mapping with MathJax inline code for numeric parts.
 const chordSuffix: { [key: string]: string } = {
     major: "",
     minor: "m",
@@ -24,14 +30,11 @@ const chordSuffix: { [key: string]: string } = {
     "minor 7th": "m7",
     "half diminished 7th": "ø7",
     "diminished 7th": "dim7",
-    "minor major 7th": "m(maj7)",
+    "minor major 7th": "m(maj^{7})",
     "augmented 7th": "aug7",
-    "augmented major 7th": "augmaj7",
+    "augmented major 7th": "augmaj^{7}",
 };
 
-// Given an inversion key, return the appropriate figured bass notation.
-// For triads, we'll use "6/3" (first inversion) and "6/4" (second inversion).
-// For 4-note chords, we use "6/5", "4/3", or "2/5".
 const getInversionFigure = (chordType: string, inversionKey: string): string => {
     let inversionIndex = 0;
     if (inversionKey === "inv1") inversionIndex = 1;
@@ -47,11 +50,9 @@ const getInversionFigure = (chordType: string, inversionKey: string): string => 
         "suspended 4th",
     ];
     if (triadTypes.includes(chordType)) {
-        if (inversionIndex === 0) return "";
         if (inversionIndex === 1) return "6/3";
         if (inversionIndex === 2) return "6/4";
     } else {
-        if (inversionIndex === 0) return "";
         if (inversionIndex === 1) return "6/5";
         if (inversionIndex === 2) return "4/3";
         if (inversionIndex === 3) return "2/5";
@@ -59,36 +60,54 @@ const getInversionFigure = (chordType: string, inversionKey: string): string => 
     return "";
 };
 
-// Convert a chord mask into note names.
 const maskToChord = (base: number, mask: number[]): string[] => {
     return mask.map((interval) => Tone.Frequency(base + interval, "midi").toNote());
 };
 
-const ChordNotation: React.FC<ChordNotationProps> = ({
+export default function ChordNotation({
     baseNote,
     chordType,
     inversion,
-}) => {
-    // Compute the note names using the chord mask from the constants.
+}: ChordNotationProps) {
+    // Guard against missing chord data.
+    if (!chords[chordType] || !chords[chordType][inversion]) {
+        return (
+            <Box sx={{ mt: 4, textAlign: "center" }}>
+                <div>Error: Chord data not found.</div>
+            </Box>
+        );
+    }
+
     const noteNames = maskToChord(baseNote, chords[chordType][inversion]);
-    // Get just the letter part of the base note (e.g., "C" from "C3")
-    const baseNoteName = Tone.Frequency(baseNote, "midi")
+    // Get the base note letter (e.g. "C#" or "F#") without the octave number.
+    let baseNoteName = Tone.Frequency(baseNote, "midi")
         .toNote()
         .replace(/\d+$/, "");
+    // Replace sharp signs with a Unicode sharp for better spacing.
+    baseNoteName = baseNoteName.replace(/#/g, "♯");
+
+    // Use the preformatted math code from the mapping.
     const suffix = chordSuffix[chordType] ?? chordType;
     const inversionFigure = getInversionFigure(chordType, inversion);
-    // Build the full chord symbol.
-    const chordSymbol =
-        baseNoteName + suffix + (inversionFigure ? ` (${inversionFigure})` : "");
+
+    const latexInversion =
+        inversionFigure && inversionFigure.includes("/")
+            ? `\\left(\\frac{${inversionFigure.replace("/", "}{")}}\\right)`
+            : "";
+    // Build the final LaTeX chord string.
+    const chordTex = `$${baseNoteName}${suffix}${latexInversion}$`;
 
     return (
-        <Box sx={{ mt: 4, textAlign: "center" }}>
-            <Typography variant="h5" gutterBottom>
-                Current Chord: {chordSymbol}
-            </Typography>
-            <Typography variant="body1">Notes: {noteNames.join(", ")}</Typography>
-        </Box>
+        <MathJaxContext version={3} config={config}>
+            <Box sx={{ mt: 4, textAlign: "center" }}>
+                {/* The key forces MathJax to re-render when chordTex changes */}
+                <MathJax key={chordTex}>
+                    <div style={{ fontSize: "2rem" }}>Chord: {chordTex}</div>
+                </MathJax>
+                <div style={{ marginTop: 8, fontSize: "1rem" }}>
+                    Notes: {noteNames.join(", ")}
+                </div>
+            </Box>
+        </MathJaxContext>
     );
-};
-
-export default ChordNotation;
+}
