@@ -68,7 +68,10 @@ export default function Page() {
   return (
     <>
 
-      <Container disableGutters>
+      <Container disableGutters sx={{
+        height: "100vh",
+        overflowY: { xs: "scroll", md: "visible" }
+      }}>
         <Typography
           variant="h3"
           fontFamily="'Georgia', serif"
@@ -95,6 +98,7 @@ export default function Page() {
         <Box
           sx={{
             // For mobile, make this container sticky at the bottom
+            padding: 0,
             display: "flex",
             flexDirection: "column",
             position: { xs: "sticky", md: "static" },
@@ -133,7 +137,7 @@ export default function Page() {
           }
           sx={{
             // For mobile, make SpeedDial sticky; for desktop, fix it to viewport
-            position: { xs: "absolute", md: "fixed" },
+            position: { xs: "fixed", md: "fixed" },
             bottom: 16,
             right: 16,
             zIndex: 1201,
