@@ -65,13 +65,14 @@ export default function PianoKeyboard({
         <Box
             sx={{
                 position: "relative",
+                paddingTop: "1.5rem",
                 width: "100%",
                 maxWidth: `${DESIGN_CONTAINER_WIDTH}px`,
                 aspectRatio: `${DESIGN_CONTAINER_WIDTH} / ${DESIGN_CONTAINER_HEIGHT}`,
                 margin: "0 auto",
             }}
         >
-            {/* Labels ABOVE the white keys for C notes */}
+            {/* Labels for C and G notes placed INSIDE the piano container */}
             {whiteKeyPositions
                 .filter((wk) => wk.note.startsWith("C") || wk.note.startsWith("G"))
                 .map((wk) => (
@@ -82,7 +83,7 @@ export default function PianoKeyboard({
                             left: `calc(${wk.index} * (100% / ${NUM_WHITE_KEYS}))`,
                             width: `calc(100% / ${NUM_WHITE_KEYS})`,
                             textAlign: "center",
-                            top: "-1.4em",
+                            top: "5px", // Changed from "-1.4em" to "5px" to position labels within the box
                             fontSize: "0.75rem",
                             pointerEvents: "none",
                             userSelect: "none",
@@ -112,7 +113,6 @@ export default function PianoKeyboard({
                         transition: "background-color 0.2s ease",
                     }}
                 >
-                    {/* No longer showing C labels inside keys */}
                     {activeNotes.includes(wk.note) && (
                         <Box
                             sx={{

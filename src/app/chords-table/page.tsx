@@ -4,31 +4,23 @@ import React, { useState } from "react";
 import * as Tone from "tone";
 import {
   Box,
-  Button,
   Container,
   Typography,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  useMediaQuery,
-  useTheme,
   Divider,
+  SpeedDial,
+  SpeedDialAction,
+  SpeedDialIcon,
 } from "@mui/material";
 import { chords } from "../data/constants";
 import useInstruments from "@src/hooks/useInstruments";
-import InstrumentSelect from "@components/InstrumentSelect";
 import ChordNotation from "@components/ChordNotation";
 import ChordTable from "@components/ChordTable";
 import PianoKeyboard from "@components/PianoKeyboard";
-import MiniPianoKeyboard from "@components/MiniPianoKeyboard";
-import OctaveSlider from "@components/OctaveSlider";
 import SettingsIcon from "@mui/icons-material/Settings";
 import InfoIcon from "@mui/icons-material/Info";
 import MenuIcon from "@mui/icons-material/Menu";
-import CloseIcon from "@mui/icons-material/Close"
-import { SpeedDial, SpeedDialAction, SpeedDialIcon } from "@mui/material";
-
+import CloseIcon from "@mui/icons-material/Close";
+import SettingsDialog from "@components/SettingsDialog";
 
 const maskToChord = (base: number, mask: number[]): number[] => {
   return mask.map((interval) =>
@@ -36,9 +28,6 @@ const maskToChord = (base: number, mask: number[]): number[] => {
   );
 };
 
-
-
-// Page.tsx
 export default function Page() {
   const [instrument, setInstrument] = useState<string>("violin");
   const [selectedNote, setSelectedNote] = useState<string>("C");
@@ -46,30 +35,13 @@ export default function Page() {
   const [activeNotes, setActiveNotes] = useState<string[]>([]);
   const [currentChordType, setCurrentChordType] = useState<string>("");
   const [currentInversion, setCurrentInversion] = useState<string>("");
+  const [settingsOpen, setSettingsOpen] = useState<boolean>(false);
 
   const currentSynth = useInstruments(instrument);
 
   // Compute base MIDI note from note + octave
   const baseNote = Tone.Frequency(`${selectedNote}${octave}`).toMidi();
   const startMidi = baseNote - 2;
-
-  // Use the theme and media query to detect mobile
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
-
-  // Modal dialog state for settings
-  const [settingsOpen, setSettingsOpen] = useState<boolean>(false);
-
-  // Shared settings content
-  const settingsContent = (
-    <>
-      <InstrumentSelect instrument={instrument} setInstrument={setInstrument} />
-      <Box>
-        <OctaveSlider octave={octave} setOctave={setOctave} />
-        <MiniPianoKeyboard baseNote={selectedNote} setBaseNote={setSelectedNote} />
-      </Box>
-    </>
-  );
 
   const playChord = (type: string, inversion: string) => {
     if (!currentSynth || !chords[type] || !chords[type][inversion]) return;
@@ -87,99 +59,105 @@ export default function Page() {
       currentSynth.triggerAttackRelease(chordFrequencies, "1m");
     } else if (currentSynth instanceof Tone.Sampler) {
       currentSynth.releaseAll();
-      chordFrequencies.forEach((freq) => currentSynth.triggerAttackRelease(freq, "2m"));
+      chordFrequencies.forEach((freq) =>
+        currentSynth.triggerAttackRelease(freq, "2m")
+      );
     }
   };
 
-
-
-
   return (
-    <Container disableGutters>
-      <Typography variant="h3" fontFamily="'Georgia', serif" textAlign="center">
-        🎼 Chords Table
-      </Typography>
-      <Divider sx={{ my: 2 }} />
+    <>
 
-      {/* Settings Modal (used on both desktop and mobile) */}
-      <Dialog
-        open={settingsOpen}
-        onClose={() => setSettingsOpen(false)}
-        fullWidth
-        fullScreen={isMobile}
-        disableScrollLock
-      >
-        <DialogTitle>Settings</DialogTitle>
-        <DialogContent>{settingsContent}</DialogContent>
-        <DialogActions>
-          <Button onClick={() => setSettingsOpen(false)}>Close</Button>
-        </DialogActions>
-      </Dialog>
+      <Container disableGutters>
+        <Typography
+          variant="h3"
+          fontFamily="'Georgia', serif"
+          textAlign="center"
+        >
+          🎼 Chords Table
+        </Typography>
+        <Divider sx={{ my: 2 }} />
 
-      <ChordTable playChord={playChord} />
-
-      <Box
-        sx={{
-          "@media (max-width: 1000px)": {
-            position: "fixed",
-            bottom: 0,
-            left: 0,
-            width: "100%",
-            backgroundColor: "white",
-            zIndex: 1000,
-            boxShadow: "0 -2px 5px rgba(0,0,0,0.2)",
-          },
-        }}
-      >
-
-        <PianoKeyboard
-          activeNotes={activeNotes}
-          startMidi={startMidi}
-          activeWhiteColor="#A2D2FF"              // Light sky blue
-          activeBlackColor="#390EA2"              // Deeper soft blue
-          activeWhiteContrastColor="#003049"      // Dark navy (great on light blue)
-          activeBlackContrastColor="white"        // Classic clean contrast
+        {/* Settings Modal */}
+        <SettingsDialog
+          open={settingsOpen}
+          onClose={() => setSettingsOpen(false)}
+          instrument={instrument}
+          setInstrument={setInstrument}
+          octave={octave}
+          setOctave={setOctave}
+          selectedNote={selectedNote}
+          setSelectedNote={setSelectedNote}
         />
 
+        <ChordTable playChord={playChord} />
+
+        <Box
+          sx={{
+            // For mobile, make this container sticky at the bottom
+            display: "flex",
+            flexDirection: "column",
+            position: { xs: "sticky", md: "static" },
+            bottom: { xs: 0, md: "auto" },
+            left: { xs: 0, md: "auto" },
+            width: { xs: "100%", md: "auto" },
+            backgroundColor: { xs: "white", md: "inherit" },
+            zIndex: { xs: 1000, md: "auto" },
+            boxShadow: { xs: "0 -2px 5px rgba(0,0,0,0.2)", md: "none" },
+          }}
+        >
+          <PianoKeyboard
+            activeNotes={activeNotes}
+            startMidi={startMidi}
+            activeWhiteColor="#A2D2FF" // Light sky blue
+            activeBlackColor="#4A90E2" // Deeper soft blue
+            activeWhiteContrastColor="#003049" // Dark navy (great on light blue)
+            activeBlackContrastColor="white" // Classic clean contrast
+          />
 
 
-
-        {currentChordType && currentInversion && (
           <ChordNotation
-            baseNote={baseNote}
+            baseNote={selectedNote}
             chordType={currentChordType}
             inversion={currentInversion}
           />
-        )}
+        </Box>
+
+        <SpeedDial
+          ariaLabel="Quick actions"
+          icon={
+            <SpeedDialIcon
+              icon={<MenuIcon />}
+              openIcon={<CloseIcon />}
+            />
+          }
+          sx={{
+            // For mobile, make SpeedDial sticky; for desktop, fix it to viewport
+            position: { xs: "absolute", md: "fixed" },
+            bottom: 16,
+            right: 16,
+            zIndex: 1201,
+            p: 0,
+            m: 0,
+          }}
+        >
+          <SpeedDialAction
+            icon={<SettingsIcon />}
+            onClick={() => setSettingsOpen(true)}
+          />
+          <SpeedDialAction
+            icon={<InfoIcon />}
+            onClick={() =>
+              alert(
+                "This is a chord player. Choose a chord and hear how it sounds."
+              )
+            }
+          />
+        </SpeedDial>
+
+      </Container>
 
 
-      </Box>
-      <Box sx={{ minHeight: "8rem" }} />
-
-
-      <SpeedDial
-        ariaLabel="Quick actions"
-        icon={<SpeedDialIcon icon={<MenuIcon />} openIcon={<CloseIcon />} />}
-        sx={{
-          position: "fixed",
-          bottom: 16,
-          right: 16,
-          zIndex: 1201,
-        }}
-      >
-        <SpeedDialAction
-          icon={<SettingsIcon />}
-          tooltipTitle="Settings"
-          onClick={() => setSettingsOpen(true)}
-        />
-        <SpeedDialAction
-          icon={<InfoIcon />}
-          tooltipTitle="Info"
-          onClick={() => alert("This is a chord player. Choose a chord and hear how it sounds.")}
-        />
-      </SpeedDial>
-
-
-    </Container>
+    </>
   );
 }

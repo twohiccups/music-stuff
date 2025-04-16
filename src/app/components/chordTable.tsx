@@ -156,8 +156,7 @@ export default function ChordTable({ playChord }: ChordTableProps) {
                                         padding: 0,
                                         textAlign: "center",
                                         fontSize: "0.8rem",
-                                        backgroundColor:
-                                            selectedChord === type && selectedInversion === key ? "rgba(255, 255, 0, 0.2)" : "white", // Temporary button highlight
+                                        backgroundColor: selectedChord === type && selectedInversion === key ? "rgba(255, 255, 0, 0.2)" : "rgba(255, 255, 255, 0.2)",
                                         borderColor:
                                             selectedChord === type && selectedInversion === key ? "yellow" : "rgba(0,0,0,0.23)",
                                         transition: "background-color 0.3s ease, border-color 0.3s ease",
@@ -177,6 +176,6 @@ export default function ChordTable({ playChord }: ChordTableProps) {
                     </React.Fragment>
                 ))}
             </Box>
-        </Box>
+        </Box >
     );
 }

@@ -8,8 +8,7 @@ export default function Home() {
       <Typography variant="h1"> Weee hee
       </Typography>
 
-
-      <Card sx={{padding: 4}}>
+      <Card sx={{ padding: 4 }}>
         <Link href="/chords-table">Chords Table</Link>
       </Card>
     </Box>

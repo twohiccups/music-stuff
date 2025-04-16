@@ -1,12 +1,9 @@
 import React from "react";
-import * as Tone from "tone";
 import { Box } from "@mui/material";
 import { MathJax, MathJaxContext } from "better-react-mathjax";
-import { chords } from "../data/constants";
-
 
 interface ChordNotationProps {
-    baseNote: number;
+    baseNote: string;
     chordType: string;
     inversion: string;
 }
@@ -31,7 +28,6 @@ const chordSuffix: { [key: string]: string } = {
 };
 
 const getInversionFigure = (chordType: string, inversionKey: string): string => {
-
     let inversionIndex = 0;
     if (inversionKey === "inv1") inversionIndex = 1;
     if (inversionKey === "inv2") inversionIndex = 2;
@@ -61,45 +57,62 @@ export default function ChordNotation({
     chordType,
     inversion,
 }: ChordNotationProps) {
-
     const config = {
         loader: { load: ["input/asciimath"] },
         tex: { inlineMath: [["$", "$"]] },
     };
 
-
-    if (!chords[chordType] || !chords[chordType][inversion]) {
-        return (
-            <Box sx={{ mt: 4, textAlign: "center" }}>
-                <div>Error: Chord data not found.</div>
-            </Box>
-        );
-    }
-
-    // Get the base note letter (e.g. "C#" or "F#") without the octave number.
-    let baseNoteName = Tone.Frequency(baseNote, "midi")
-        .toNote()
-        .replace(/\d+$/, "");
-    // Replace sharp signs with a Unicode sharp for better spacing.
-    baseNoteName = baseNoteName.replace(/#/g, "^{♯}");
-
     // Use the preformatted math code from the mapping.
     const suffix = chordSuffix[chordType] ?? chordType;
     const inversionFigure = getInversionFigure(chordType, inversion);
-    const latexInversion =
+    let latexInversion =
         inversionFigure && inversionFigure.includes("/")
-            ? `\\left(\\frac{${inversionFigure.replace("/", "}{")}}\\right)`
+            ? `\\space\\space \\frac{${inversionFigure.replace("/", "}{")}}`
             : "";
-    // Build the final LaTeX chord string.
-    const chordTex = `$\\mathbf{${baseNoteName}${suffix}${latexInversion}}$`;
+
+    // In this example we are not showing the inversion text.
+    latexInversion = "";
+
+    // Process the note to properly render sharps in LaTeX.
+    const baseNoteName = baseNote.replace(/#/g, "^{♯}");
+    const baseNoteTex = `\\mathbf{${baseNoteName}}`;
+    const chordNotationText = `\\mathbf{${suffix}${latexInversion}}`;
+
+    // Build a key that changes when the chord data changes.
+    const mathKey = `${baseNote}-${chordType}-${inversion}`;
 
     return (
-        <MathJaxContext config={config}>
-            <Box sx={{ mt: 4, textAlign: "center" }}>
-                <MathJax >
-                    <div style={{ fontSize: "2rem" }}>{chordTex}</div>
-                </MathJax>
-            </Box>
-        </MathJaxContext>
+        <Box
+            sx={{
+                mt: 4,
+                textAlign: "center",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                height: "50px",
+                minHeight: "50px",
+
+                border: "1px solid transparent", // optional: for debugging layout boundaries
+            }}
+        >
+            <MathJaxContext config={config}>
+                {/* Add an inner container with fixed height and matching line-height */}
+
+                {chordType &&
+                    <Box
+                        sx={{
+                            fontSize: "2rem",
+                        }}
+                    >
+                        <MathJax inline key={`base-${mathKey}`}>
+                            {`$${baseNoteTex}$`}
+                        </MathJax>
+                        <MathJax inline key={`notation-${mathKey}`}>
+                            {`$${chordNotationText}$`}
+                        </MathJax>
+                    </Box>
+                }
+            </MathJaxContext>
+        </Box>
     );
 }
