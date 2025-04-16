@@ -3,9 +3,11 @@
 import React, { useState } from "react";
 import { Box, Button, Typography } from "@mui/material";
 import { chords } from "../data/constants";
+import MusicNoteIcon from '@mui/icons-material/MusicNote';
 
 interface ChordTableProps {
     playChord: (type: string, inversion: string) => void;
+    buttonColor?: string;
 }
 
 // Define mappings for inversions
@@ -16,7 +18,10 @@ const INVERSION_MAP = [
     { label: "3rd", key: "inv3" },
 ];
 
-export default function ChordTable({ playChord }: ChordTableProps) {
+export default function ChordTable({
+    playChord,
+    buttonColor = 'white'
+}: ChordTableProps) {
     const chordTypes = Object.keys(chords);
 
     // State to track selected chord and inversion
@@ -91,6 +96,7 @@ export default function ChordTable({ playChord }: ChordTableProps) {
                             variant="body2"
                             sx={{
                                 fontWeight: "bold",
+                                fontVariant: 'small-caps',
                                 whiteSpace: "nowrap",
                                 color: selectedChord === type ? "blue" : "inherit", // Change text color temporarily
                                 transition: "color 0.3s ease",
@@ -128,6 +134,7 @@ export default function ChordTable({ playChord }: ChordTableProps) {
                                 variant="body2"
                                 sx={{
                                     whiteSpace: "nowrap",
+                                    fontVariant: 'small-caps',
                                     fontWeight: "bold",
                                     color: selectedInversion === key ? "blue" : "inherit",
                                     transition: "color 0.3s ease",
@@ -140,38 +147,64 @@ export default function ChordTable({ playChord }: ChordTableProps) {
                         {/* Chord buttons */}
                         {chordTypes.map((type) => {
                             const chordExists = !!chords[type]?.[key];
-                            return (
+                            if (chordExists) {
+                                return (
+                                    <Button
+                                        key={`${type}-${key}`}
+                                        onClick={() => handleChordClick(type, key)}
+                                        disabled={!chordExists}
+                                        variant="outlined"
+                                        sx={{
+                                            borderRadius: 5,
+                                            border: "none",
+                                            boxShadow: "0px 3px 2px #581B7E",
+                                            width: "100%",
+                                            aspectRatio: "1/1",
+                                            minWidth: 40,
+                                            minHeight: 40,
+                                            padding: 0,
+                                            textAlign: "center",
+                                            fontSize: "0.8rem",
+                                            backgroundColor: selectedChord === type && selectedInversion === key ? "rgba(255, 255, 0, 0.2)" : buttonColor,
+                                            transition: "background-color 0.3s ease, border-color 0.3s ease",
+                                            "@media (max-width: 1000px)": {
+                                                minWidth: "initial",
+                                                minHeight: "initial",
+                                                fontSize: "0.7rem",
+                                                gridColumn: `${invIndex + 2} / span 1`,
+                                                gridRow: `${chordTypes.indexOf(type) + 2} / span 1`,
+                                            },
+                                        }}
+                                    >
+                                        {chordExists ? <MusicNoteIcon /> : "x"}
+                                    </Button>
+                                );
+                            } else return (
                                 <Button
                                     key={`${type}-${key}`}
-                                    onClick={() => handleChordClick(type, key)}
-                                    disabled={!chordExists}
+                                    disabled={true}
                                     variant="outlined"
                                     sx={{
-                                        borderRadius: 5,
-                                        boxShadow: "0px 3px 2px #581B7E",
                                         width: "100%",
+                                        borderRadius: 5,
                                         aspectRatio: "1/1",
                                         minWidth: 40,
                                         minHeight: 40,
                                         padding: 0,
-                                        textAlign: "center",
-                                        fontSize: "0.8rem",
-                                        backgroundColor: selectedChord === type && selectedInversion === key ? "rgba(255, 255, 0, 0.2)" : "rgba(255, 255, 255, 0.2)",
-                                        borderColor:
-                                            selectedChord === type && selectedInversion === key ? "yellow" : "rgba(0,0,0,0.23)",
-                                        transition: "background-color 0.3s ease, border-color 0.3s ease",
+                                        border: 'none !important',
+                                        color: buttonColor,
+                                        backgroundColor: buttonColor,
                                         "@media (max-width: 1000px)": {
                                             minWidth: "initial",
                                             minHeight: "initial",
-                                            fontSize: "0.7rem",
                                             gridColumn: `${invIndex + 2} / span 1`,
                                             gridRow: `${chordTypes.indexOf(type) + 2} / span 1`,
                                         },
                                     }}
-                                >
-                                    {chordExists ? "🎵" : "x"}
-                                </Button>
-                            );
+                                >  </Button>
+
+                            )
+
                         })}
                     </React.Fragment>
                 ))}

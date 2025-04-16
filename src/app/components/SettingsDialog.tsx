@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { SetStateAction } from "react";
 import {
     Box,
     Button,
@@ -21,9 +21,9 @@ interface SettingsDialogProps {
     instrument: string;
     setInstrument: (instrument: string) => void;
     octave: number;
-    setOctave: (octave: number) => void;
+    setOctave: React.Dispatch<React.SetStateAction<number>>;
     selectedNote: string;
-    setSelectedNote: (note: string) => void;
+    setSelectedNote: React.Dispatch<SetStateAction<string>>
 }
 
 const SettingsDialog: React.FC<SettingsDialogProps> = ({
@@ -51,9 +51,9 @@ const SettingsDialog: React.FC<SettingsDialogProps> = ({
             <DialogContent>
                 <InstrumentSelect instrument={instrument} setInstrument={setInstrument} />
                 <Box>
-                    <OctaveSlider octave={octave} setOctave={() => setOctave} />
-                    <MiniPianoKeyboard baseNote={selectedNote} setBaseNote={() => setSelectedNote} />
-                </Box>
+                    <OctaveSlider octave={octave} setOctave={setOctave} />
+                    <MiniPianoKeyboard baseNote={selectedNote} setBaseNote={setSelectedNote} />
+                </Box>    
             </DialogContent>
             <DialogActions>
                 <Button onClick={onClose}>Close</Button>

@@ -69,15 +69,19 @@ export default function Page() {
     <>
 
       <Container disableGutters sx={{
-        height: "100vh",
+        height: "90vh",
+        paddingBottom: { xs: 10, md: 0 },
         overflowY: { xs: "scroll", md: "visible" }
       }}>
         <Typography
           variant="h3"
           fontFamily="'Georgia', serif"
           textAlign="center"
+          sx={{
+            mt: 1.5
+          }}
         >
-          🎼 Chords Table
+          Chords Table
         </Typography>
         <Divider sx={{ my: 2 }} />
 
@@ -93,7 +97,7 @@ export default function Page() {
           setSelectedNote={setSelectedNote}
         />
 
-        <ChordTable playChord={playChord} />
+        <ChordTable playChord={playChord} buttonColor="#b19ff5" />
 
         <Box
           sx={{
@@ -101,7 +105,8 @@ export default function Page() {
             padding: 0,
             display: "flex",
             flexDirection: "column",
-            position: { xs: "sticky", md: "static" },
+            gap: 1,
+            position: { xs: "fixed", md: "static" },
             bottom: { xs: 0, md: "auto" },
             left: { xs: 0, md: "auto" },
             width: { xs: "100%", md: "auto" },
@@ -127,39 +132,38 @@ export default function Page() {
           />
         </Box>
 
-        <SpeedDial
-          ariaLabel="Quick actions"
-          icon={
-            <SpeedDialIcon
-              icon={<MenuIcon />}
-              openIcon={<CloseIcon />}
-            />
-          }
-          sx={{
-            // For mobile, make SpeedDial sticky; for desktop, fix it to viewport
-            position: { xs: "fixed", md: "fixed" },
-            bottom: 16,
-            right: 16,
-            zIndex: 1201,
-            p: 0,
-            m: 0,
-          }}
-        >
-          <SpeedDialAction
-            icon={<SettingsIcon />}
-            onClick={() => setSettingsOpen(true)}
-          />
-          <SpeedDialAction
-            icon={<InfoIcon />}
-            onClick={() =>
-              alert(
-                "This is a chord player. Choose a chord and hear how it sounds."
-              )
-            }
-          />
-        </SpeedDial>
-
       </Container>
+      <SpeedDial
+        ariaLabel="Quick actions"
+        icon={
+          <SpeedDialIcon
+            icon={<MenuIcon />}
+            openIcon={<CloseIcon />}
+          />
+        }
+        sx={{
+          // For mobile, make SpeedDial sticky; for desktop, fix it to viewport
+          position: { xs: "fixed", md: "fixed" },
+          bottom: { xs: 8, md: 30 },
+          right: 16,
+          zIndex: 1201,
+          p: 0,
+          m: 0,
+        }}
+      >
+        <SpeedDialAction
+          icon={<SettingsIcon />}
+          onClick={() => setSettingsOpen(true)}
+        />
+        <SpeedDialAction
+          icon={<InfoIcon />}
+          onClick={() =>
+            alert(
+              "This is a chord player. Choose a chord and hear how it sounds."
+            )
+          }
+        />
+      </SpeedDial>
 
 
     </>

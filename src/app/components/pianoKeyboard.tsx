@@ -9,6 +9,9 @@ const NUM_WHITE_KEYS = 14;
 const BLACK_KEY_WIDTH_PERCENT = (30 / DESIGN_CONTAINER_WIDTH) * 100;
 const BLACK_KEY_HEIGHT_PERCENT = (80 / DESIGN_CONTAINER_HEIGHT) * 100;
 
+// Helper to drop octave digits, e.g. "C#4" → "C#"
+const stripOctave = (note: string) => note.replace(/\d+$/, "");
+
 interface PianoKeyboardProps {
     activeNotes: string[];
     startMidi: number;
@@ -29,37 +32,38 @@ export default function PianoKeyboard({
     let endMidi = startMidi;
     const whiteKeys: number[] = [];
 
+    // Gather white-key midi numbers
     while (whiteKeys.length < NUM_WHITE_KEYS) {
-        const note = Tone.Frequency(endMidi, "midi").toNote();
+        const note = Tone.Frequency(endMidi, "midi").toNote() as string;
         if (!note.includes("#")) {
             whiteKeys.push(endMidi);
         }
         endMidi++;
     }
 
+    // Build full midi range
     const midiNumbers: number[] = [];
     for (let m = startMidi; m < endMidi; m++) {
         midiNumbers.push(m);
     }
 
-    const whiteKeyPositions: { midi: number; note: string; index: number }[] = whiteKeys.map((m, i) => ({
+    // Map white keys to positions
+    const whiteKeyPositions = whiteKeys.map((m, i) => ({
         midi: m,
         note: Tone.Frequency(m, "midi").toNote() as string,
         index: i,
     }));
 
-    const blackKeyPositions: { midi: number; note: string; whiteIndex: number }[] = midiNumbers
-        .filter((m) => {
-            const note = Tone.Frequency(m, "midi").toNote() as string;
-            return note.includes("#");
-        })
+    // Map black keys to positions relative to preceding white key
+    const blackKeyPositions = midiNumbers
+        .filter((m) => (Tone.Frequency(m, "midi").toNote() as string).includes("#"))
         .map((m) => {
             const note = Tone.Frequency(m, "midi").toNote() as string;
             const precedingWhiteKey = whiteKeyPositions.filter((wk) => wk.midi < m).slice(-1)[0];
             if (!precedingWhiteKey) return null;
             return { midi: m, note, whiteIndex: precedingWhiteKey.index };
         })
-        .filter((bk): bk is { midi: number; note: string; whiteIndex: number } => bk !== null);
+        .filter((bk): bk is { midi: number; note: string; whiteIndex: number } => !!bk);
 
     return (
         <Box
@@ -72,7 +76,7 @@ export default function PianoKeyboard({
                 margin: "0 auto",
             }}
         >
-            {/* Labels for C and G notes placed INSIDE the piano container */}
+            {/* Top labels for C & G — leave octave intact */}
             {whiteKeyPositions
                 .filter((wk) => wk.note.startsWith("C") || wk.note.startsWith("G"))
                 .map((wk) => (
@@ -83,12 +87,14 @@ export default function PianoKeyboard({
                             left: `calc(${wk.index} * (100% / ${NUM_WHITE_KEYS}))`,
                             width: `calc(100% / ${NUM_WHITE_KEYS})`,
                             textAlign: "center",
-                            top: "5px", // Changed from "-1.4em" to "5px" to position labels within the box
+                            top: "5px",
                             fontSize: "0.75rem",
                             pointerEvents: "none",
                             userSelect: "none",
                             fontWeight: "bold",
-                            color: activeNotes.includes(wk.note) ? activeWhiteContrastColor : "#333",
+                            color: activeNotes.includes(wk.note)
+                                ? activeWhiteContrastColor
+                                : "#333",
                         }}
                     >
                         {wk.note}
@@ -96,80 +102,88 @@ export default function PianoKeyboard({
                 ))}
 
             {/* White keys */}
-            {whiteKeyPositions.map((wk) => (
-                <Box
-                    key={wk.midi}
-                    sx={{
-                        position: "absolute",
-                        left: `calc(${wk.index} * (100% / ${NUM_WHITE_KEYS}))`,
-                        width: `calc(100% / ${NUM_WHITE_KEYS})`,
-                        height: "100%",
-                        border: "1px solid #666",
-                        borderRadius: "0 0 6px 6px",
-                        backgroundColor: activeNotes.includes(wk.note) ? activeWhiteColor : "white",
-                        boxSizing: "border-box",
-                        cursor: "pointer",
-                        boxShadow: "1px 5px 3px grey",
-                        transition: "background-color 0.2s ease",
-                    }}
-                >
-                    {activeNotes.includes(wk.note) && (
-                        <Box
-                            sx={{
-                                position: "absolute",
-                                bottom: 2,
-                                left: 0,
-                                right: 0,
-                                textAlign: "center",
-                                fontSize: "0.8em",
-                                pointerEvents: "none",
-                                color: activeWhiteContrastColor,
-                                fontWeight: "bold",
-                            }}
-                        >
-                            {wk.note}
-                        </Box>
-                    )}
-                </Box>
-            ))}
+            {whiteKeyPositions.map((wk) => {
+                const noteLabel = stripOctave(wk.note);
+                const isActive = activeNotes.includes(wk.note);
+                return (
+                    <Box
+                        key={wk.midi}
+                        sx={{
+                            position: "absolute",
+                            left: `calc(${wk.index} * (100% / ${NUM_WHITE_KEYS}))`,
+                            width: `calc(100% / ${NUM_WHITE_KEYS})`,
+                            height: "100%",
+                            border: "1px solid #666",
+                            borderRadius: "0 0 6px 6px",
+                            backgroundColor: isActive ? activeWhiteColor : "white",
+                            boxSizing: "border-box",
+                            cursor: "pointer",
+                            boxShadow: { xs: "1px 2px 1px grey", md: "1px 5px 3px grey" },
+                            transition: "background-color 0.2s ease",
+                        }}
+                    >
+                        {isActive && (
+                            <Box
+                                sx={{
+                                    position: "absolute",
+                                    bottom: 2,
+                                    left: 0,
+                                    right: 0,
+                                    textAlign: "center",
+                                    fontSize: "0.8em",
+                                    pointerEvents: "none",
+                                    color: activeWhiteContrastColor,
+                                    fontWeight: "bold",
+                                }}
+                            >
+                                {noteLabel}
+                            </Box>
+                        )}
+                    </Box>
+                );
+            })}
 
             {/* Black keys */}
-            {blackKeyPositions.map((bk) => (
-                <Box
-                    key={bk.midi}
-                    sx={{
-                        position: "absolute",
-                        left: `calc((${bk.whiteIndex} + 1) * (100% / ${NUM_WHITE_KEYS}) - (${BLACK_KEY_WIDTH_PERCENT}% / 2))`,
-                        width: `${BLACK_KEY_WIDTH_PERCENT}%`,
-                        height: `${BLACK_KEY_HEIGHT_PERCENT}%`,
-                        backgroundColor: activeNotes.includes(bk.note) ? activeBlackColor : "black",
-                        border: "1px solid #222",
-                        borderRadius: "0 0 4px 4px",
-                        zIndex: 2,
-                        cursor: "pointer",
-                        boxShadow: "0 1px 3px rgba(0, 0, 0, 0.3)",
-                        transition: "background-color 0.2s ease",
-                    }}
-                >
-                    {activeNotes.includes(bk.note) && (
-                        <Box
-                            sx={{
-                                position: "absolute",
-                                bottom: 2,
-                                left: 0,
-                                right: 0,
-                                textAlign: "center",
-                                fontSize: "0.7em",
-                                color: activeBlackContrastColor,
-                                fontWeight: "bold",
-                                pointerEvents: "none",
-                            }}
-                        >
-                            {bk.note}
-                        </Box>
-                    )}
-                </Box>
-            ))}
+            {blackKeyPositions.map((bk) => {
+                const noteLabel = stripOctave(bk.note);
+                const isActive = activeNotes.includes(bk.note);
+                return (
+                    <Box
+                        key={bk.midi}
+                        sx={{
+                            position: "absolute",
+                            left: `calc((${bk.whiteIndex} + 1) * (100% / ${NUM_WHITE_KEYS}) - (${BLACK_KEY_WIDTH_PERCENT}% / 2))`,
+                            width: `${BLACK_KEY_WIDTH_PERCENT}%`,
+                            height: `${BLACK_KEY_HEIGHT_PERCENT}%`,
+                            backgroundColor: isActive ? activeBlackColor : "black",
+                            border: "1px solid #222",
+                            borderRadius: "0 0 4px 4px",
+                            zIndex: 2,
+                            cursor: "pointer",
+                            boxShadow: "0 1px 3px rgba(0, 0, 0, 0.3)",
+                            transition: "background-color 0.2s ease",
+                        }}
+                    >
+                        {isActive && (
+                            <Box
+                                sx={{
+                                    position: "absolute",
+                                    bottom: 2,
+                                    left: 0,
+                                    right: 0,
+                                    textAlign: "center",
+                                    fontSize: "0.7em",
+                                    color: activeBlackContrastColor,
+                                    fontWeight: "bold",
+                                    pointerEvents: "none",
+                                }}
+                            >
+                                {noteLabel}
+                            </Box>
+                        )}
+                    </Box>
+                );
+            })}
         </Box>
     );
 }
