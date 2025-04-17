@@ -7,7 +7,9 @@ import MusicNoteIcon from '@mui/icons-material/MusicNote';
 
 interface ChordTableProps {
     playChord: (type: string, inversion: string) => void;
-    buttonColor?: string;
+    activeChordColor?: string;
+    inactiveChordColor?: string;
+    boxShadowColor?: string;
 }
 
 // Define mappings for inversions
@@ -20,7 +22,9 @@ const INVERSION_MAP = [
 
 export default function ChordTable({
     playChord,
-    buttonColor = 'white'
+    activeChordColor = 'black',
+    inactiveChordColor = 'white',
+    boxShadowColor = 'grey'
 }: ChordTableProps) {
     const chordTypes = Object.keys(chords);
 
@@ -98,7 +102,6 @@ export default function ChordTable({
                                 fontWeight: "bold",
                                 fontVariant: 'small-caps',
                                 whiteSpace: "nowrap",
-                                color: selectedChord === type ? "blue" : "inherit", // Change text color temporarily
                                 transition: "color 0.3s ease",
                                 "@media (max-width: 1000px)": {
                                     whiteSpace: "wrap",
@@ -148,6 +151,7 @@ export default function ChordTable({
                         {chordTypes.map((type) => {
                             const chordExists = !!chords[type]?.[key];
                             if (chordExists) {
+                                const isActiveChord = selectedChord === type && selectedInversion === key;
                                 return (
                                     <Button
                                         key={`${type}-${key}`}
@@ -157,7 +161,7 @@ export default function ChordTable({
                                         sx={{
                                             borderRadius: 5,
                                             border: "none",
-                                            boxShadow: "0px 3px 2px #581B7E",
+                                            boxShadow: `0px 3px 2px ` + boxShadowColor,
                                             width: "100%",
                                             aspectRatio: "1/1",
                                             minWidth: 40,
@@ -165,7 +169,7 @@ export default function ChordTable({
                                             padding: 0,
                                             textAlign: "center",
                                             fontSize: "0.8rem",
-                                            // backgroundColor: selectedChord === type && selectedInversion === key ? "rgba(255, 255, 0, 0.2)" : buttonColor,
+                                            backgroundColor: isActiveChord ? activeChordColor : inactiveChordColor,
                                             transition: "background-color 0.3s ease, border-color 0.3s ease",
                                             "@media (max-width: 1000px)": {
                                                 minWidth: "initial",
@@ -192,8 +196,7 @@ export default function ChordTable({
                                         minHeight: 40,
                                         padding: 0,
                                         border: 'none !important',
-                                        color: buttonColor,
-                                        backgroundColor: buttonColor,
+                                        backgroundColor: inactiveChordColor,
                                         "@media (max-width: 1000px)": {
                                             minWidth: "initial",
                                             minHeight: "initial",

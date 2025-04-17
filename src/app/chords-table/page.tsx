@@ -6,7 +6,7 @@ import {
   Box,
   Container,
   Typography,
-  Divider,
+
   SpeedDial,
   SpeedDialAction,
   SpeedDialIcon,
@@ -73,17 +73,20 @@ export default function Page() {
         paddingBottom: { xs: 10, md: 0 },
         overflowY: { xs: "scroll", md: "visible" }
       }}>
+
         <Typography
           variant="h3"
           fontFamily="'Georgia', serif"
+          fontWeight={"bold"}
           textAlign="center"
           sx={{
-            mt: 1.5
+
+            my: 2
           }}
         >
           Chords Table
         </Typography>
-        <Divider sx={{ my: 2 }} />
+
 
         {/* Settings Modal */}
         <SettingsDialog
@@ -97,7 +100,11 @@ export default function Page() {
           setSelectedNote={setSelectedNote}
         />
 
-        <ChordTable playChord={playChord} buttonColor="#b19ff5" />
+        <ChordTable playChord={playChord}
+          activeChordColor="#384e63"
+          inactiveChordColor="#E1E8F2"
+          boxShadowColor="grey"
+        />
 
         <Box
           sx={{
