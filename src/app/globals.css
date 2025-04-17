@@ -27,6 +27,7 @@ body {
   font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background: radial-gradient(circle, rgba(90, 205, 250, 1) 0%, rgba(163, 255, 250, 1) 26%, rgba(153, 255, 163, 1) 75%, rgba(250, 250, 197, 1) 100%);
 }
 
 

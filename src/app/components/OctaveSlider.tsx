@@ -9,8 +9,8 @@ interface OctaveSliderProps {
 }
 
 const OctaveSlider = ({ octave, setOctave }: OctaveSliderProps) => {
-    const minOctave = 0;
-    const maxOctave = 8;
+    const minOctave = 1;
+    const maxOctave = 7;
 
 
 
@@ -29,7 +29,7 @@ const OctaveSlider = ({ octave, setOctave }: OctaveSliderProps) => {
                 value={octave}
                 onChange={handleSliderChange}
                 valueLabelDisplay="auto"
-                sx={{ width: 300, mx: "auto" }}
+                sx={{ width: 200, mx: "auto" }}
                 marks={Array.from({ length: maxOctave - minOctave + 1 }, (_, i) => ({
                     value: minOctave + i,
                     label: `${minOctave + i}`,

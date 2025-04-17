@@ -165,7 +165,7 @@ export default function ChordTable({
                                             padding: 0,
                                             textAlign: "center",
                                             fontSize: "0.8rem",
-                                            backgroundColor: selectedChord === type && selectedInversion === key ? "rgba(255, 255, 0, 0.2)" : buttonColor,
+                                            // backgroundColor: selectedChord === type && selectedInversion === key ? "rgba(255, 255, 0, 0.2)" : buttonColor,
                                             transition: "background-color 0.3s ease, border-color 0.3s ease",
                                             "@media (max-width: 1000px)": {
                                                 minWidth: "initial",
