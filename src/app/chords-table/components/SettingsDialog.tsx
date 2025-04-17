@@ -11,9 +11,9 @@ import {
     useMediaQuery,
     useTheme,
 } from "@mui/material";
-import InstrumentSelect from "@components/InstrumentSelect";
-import OctaveSlider from "@components/OctaveSlider";
-import MiniPianoKeyboard from "@components/MiniPianoKeyboard";
+import InstrumentSelect from "@app/chords-table/components/InstrumentSelect";
+import OctaveSlider from "@app/chords-table/components/OctaveSlider";
+import MiniPianoKeyboard from "@app/chords-table/components/MiniPianoKeyboard";
 
 interface SettingsDialogProps {
     open: boolean;
@@ -53,7 +53,7 @@ const SettingsDialog: React.FC<SettingsDialogProps> = ({
                 <Box>
                     <OctaveSlider octave={octave} setOctave={setOctave} />
                     <MiniPianoKeyboard baseNote={selectedNote} setBaseNote={setSelectedNote} />
-                </Box>    
+                </Box>
             </DialogContent>
             <DialogActions>
                 <Button onClick={onClose}>Close</Button>

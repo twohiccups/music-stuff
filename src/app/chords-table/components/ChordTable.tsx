@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { Box, Button, Typography } from "@mui/material";
-import { chords } from "../data/constants";
+import { chords } from "../../data/constants";
 import MusicNoteIcon from '@mui/icons-material/MusicNote';
 
 interface ChordTableProps {
@@ -10,6 +10,8 @@ interface ChordTableProps {
     activeChordColor?: string;
     inactiveChordColor?: string;
     boxShadowColor?: string;
+    labelColor?: string;
+    activeLabelColor?: string;
 }
 
 // Define mappings for inversions
@@ -24,7 +26,9 @@ export default function ChordTable({
     playChord,
     activeChordColor = 'black',
     inactiveChordColor = 'white',
-    boxShadowColor = 'grey'
+    boxShadowColor = 'grey',
+    labelColor = 'black',
+    activeLabelColor = 'blue'
 }: ChordTableProps) {
     const chordTypes = Object.keys(chords);
 
@@ -139,7 +143,7 @@ export default function ChordTable({
                                     whiteSpace: "nowrap",
                                     fontVariant: 'small-caps',
                                     fontWeight: "bold",
-                                    color: selectedInversion === key ? "blue" : "inherit",
+                                    color: selectedInversion === key ? activeLabelColor : labelColor,
                                     transition: "color 0.3s ease",
                                 }}
                             >

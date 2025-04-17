@@ -19,10 +19,10 @@ import {
 
 import { chords } from "../data/constants";
 import useInstruments from "@src/hooks/useInstruments";
-import ChordNotation from "@components/ChordNotation";
-import ChordTable from "@components/ChordTable";
-import PianoKeyboard from "@components/PianoKeyboard";
-import SettingsDialog from "@components/SettingsDialog";
+import ChordNotation from "@app/chords-table/components/ChordNotation";
+import PianoKeyboard from "@app/chords-table/components/PianoKeyboard";
+import SettingsDialog from "@app/chords-table/components/SettingsDialog";
+import ChordTable from "@app/chords-table/components/ChordTable";
 
 // Convert base MIDI + mask → frequencies
 const maskToChord = (base: number, mask: number[]) =>
@@ -117,6 +117,8 @@ export default function Page() {
           activeChordColor="#384e63"
           inactiveChordColor="#E1E8F2"
           boxShadowColor="grey"
+          labelColor="black"
+          activeLabelColor="blue"
         />
 
         <Box
