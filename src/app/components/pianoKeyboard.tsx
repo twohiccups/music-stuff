@@ -70,7 +70,7 @@ export default function PianoKeyboard({
             sx={{
                 position: "relative",
                 paddingTop: "1.5rem",
-                width: "100%",
+                width: "95%",
                 maxWidth: `${DESIGN_CONTAINER_WIDTH}px`,
                 aspectRatio: `${DESIGN_CONTAINER_WIDTH} / ${DESIGN_CONTAINER_HEIGHT}`,
                 margin: "0 auto",
