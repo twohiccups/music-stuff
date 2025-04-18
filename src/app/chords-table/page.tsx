@@ -9,6 +9,7 @@ import {
   SpeedDial,
   SpeedDialAction,
   SpeedDialIcon,
+  useTheme,
 } from "@mui/material";
 import {
   Settings as SettingsIcon,
@@ -30,6 +31,7 @@ const maskToChord = (base: number, mask: number[]) =>
 
 export default function Page() {
   // ------- state -------
+  const theme = useTheme()
   const [instrument, setInstrument] = useState("violin");
   const [selectedNote, setSelectedNote] = useState("C");
   const [octave, setOctave] = useState(4);
@@ -117,7 +119,7 @@ export default function Page() {
           activeChordColor="#384e63"
           inactiveChordColor="#E1E8F2"
           boxShadowColor="grey"
-          labelColor="black"
+          labelColor={theme.palette.text.primary}
           activeLabelColor="blue"
         />
 
@@ -131,18 +133,20 @@ export default function Page() {
             bottom: { xs: 0, md: "auto" },
             left: { xs: 0, md: "auto" },
             width: { xs: "100vw", md: "auto" },
-            bgcolor: { xs: "background.paper", md: "inherit" },
             zIndex: { xs: 1000, md: "auto" },
             boxShadow: { xs: "0 -2px 5px rgba(0,0,0,0.2)", md: "none" },
+            backgroundColor: { xs: theme.palette.background.paper, md: "inherit" }
           }}
         >
           <PianoKeyboard
             activeNotes={activeNotes}
             startMidi={startMidi}
-            activeWhiteColor="#A2D2FF"
-            activeBlackColor="#4A90E2"
-            activeWhiteContrastColor="#003049"
-            activeBlackContrastColor="#fff"
+            whiteKeyColor="white"
+            blackKeyColor="black"
+            activeWhiteKeyColor="#A2D2FF"
+            activeBlackKeyColor="#4A90E2"
+            activeWhiteKeyContrastColor="#003049"
+            activeBlackKeyContrastColor="#fff"
           />
           <ChordNotation
             baseNote={selectedNote}
@@ -166,7 +170,6 @@ export default function Page() {
           <SpeedDialAction
             key={name}
             icon={icon}
-            tooltipTitle={name}
             onClick={onClick}
           />
         ))}

@@ -1,5 +1,5 @@
 import React from "react";
-import { Box } from "@mui/material";
+import { Box, useTheme } from "@mui/material";
 import { MathJax, MathJaxContext } from "better-react-mathjax";
 
 interface ChordNotationProps {
@@ -28,6 +28,7 @@ const chordSuffix: { [key: string]: string } = {
 };
 
 const getInversionFigure = (chordType: string, inversionKey: string): string => {
+
     let inversionIndex = 0;
     if (inversionKey === "inv1") inversionIndex = 1;
     if (inversionKey === "inv2") inversionIndex = 2;
@@ -57,6 +58,8 @@ export default function ChordNotation({
     chordType,
     inversion,
 }: ChordNotationProps) {
+
+    const theme = useTheme()
     const config = {
         loader: { load: ["input/asciimath"] },
         tex: { inlineMath: [["$", "$"]] },
@@ -91,8 +94,6 @@ export default function ChordNotation({
                 justifyContent: "center",
                 height: "50px",
                 minHeight: "50px",
-
-                border: "1px solid transparent", // optional: for debugging layout boundaries
             }}
         >
             <MathJaxContext config={config}>
@@ -102,6 +103,8 @@ export default function ChordNotation({
                     <Box
                         sx={{
                             fontSize: "2rem",
+                            color: theme.palette.text.primary
+
                         }}
                     >
                         <MathJax inline key={`base-${mathKey}`}>

@@ -59,7 +59,7 @@ export default function ChordTable({
                     alignItems: "center",
                     justifyItems: "center",
                     maxWidth: "100%",
-                    "@media (max-width: 1000px)": {
+                    "@media (max-width: 900px)": {
                         gridTemplateColumns: `minmax(50px, 1fr) repeat(${INVERSION_MAP.length}, minmax(40px, 1fr))`,
                         gridTemplateRows: `minmax(40px, auto) repeat(${chordTypes.length}, minmax(40px, auto))`,
                         width: "100%",
@@ -69,7 +69,7 @@ export default function ChordTable({
                 }}
             >
                 {/* Empty top-left cell */}
-                <Box sx={{ height: "60px", width: "80px", "@media (max-width: 1000px)": { display: "none" } }} />
+                <Box sx={{ height: "60px", width: "80px", "@media (max-width: 900px)": { display: "none" } }} />
 
                 {/* Chord type labels */}
                 {chordTypes.map((type, index) => (
@@ -88,7 +88,7 @@ export default function ChordTable({
                             position: "relative",
                             left: "50px",
                             bottom: "-10px",
-                            "@media (max-width: 1000px)": {
+                            "@media (max-width: 900px)": {
                                 transform: "rotate(0)",
                                 gridColumn: "1 / span 1",
                                 gridRow: `${index + 2} / span 1`,
@@ -107,7 +107,8 @@ export default function ChordTable({
                                 fontVariant: 'small-caps',
                                 whiteSpace: "nowrap",
                                 transition: "color 0.3s ease",
-                                "@media (max-width: 1000px)": {
+                                color: selectedChord === type ? activeLabelColor : labelColor,
+                                "@media (max-width: 900px)": {
                                     whiteSpace: "wrap",
                                 },
                                 padding: 1,
@@ -128,7 +129,7 @@ export default function ChordTable({
                             sx={{
                                 width: "60px",
                                 textAlign: "center",
-                                "@media (max-width: 1000px)": {
+                                "@media (max-width: 900px)": {
                                     gridColumn: `${invIndex + 2} / span 1`,
                                     gridRow: "1 / span 1",
                                     textAlign: "center",
@@ -175,7 +176,7 @@ export default function ChordTable({
                                             fontSize: "0.8rem",
                                             backgroundColor: isActiveChord ? activeChordColor : inactiveChordColor,
                                             transition: "background-color 0.3s ease, border-color 0.3s ease",
-                                            "@media (max-width: 1000px)": {
+                                            "@media (max-width: 900px)": {
                                                 minWidth: "initial",
                                                 minHeight: "initial",
                                                 fontSize: "0.7rem",
@@ -201,7 +202,7 @@ export default function ChordTable({
                                         padding: 0,
                                         border: 'none !important',
                                         backgroundColor: inactiveChordColor,
-                                        "@media (max-width: 1000px)": {
+                                        "@media (max-width: 900px)": {
                                             minWidth: "initial",
                                             minHeight: "initial",
                                             gridColumn: `${invIndex + 2} / span 1`,

@@ -1,5 +1,5 @@
 import React from "react";
-import { Box } from "@mui/material";
+import { Box, useTheme } from "@mui/material";
 import * as Tone from "tone";
 
 const DESIGN_CONTAINER_WIDTH = 700;
@@ -15,20 +15,25 @@ const stripOctave = (note: string) => note.replace(/\d+$/, "");
 interface PianoKeyboardProps {
     activeNotes: string[];
     startMidi: number;
-    activeWhiteColor?: string;
-    activeBlackColor?: string;
-    activeWhiteContrastColor?: string;
-    activeBlackContrastColor?: string;
+    whiteKeyColor?: string,
+    blackKeyColor?: string,
+    activeWhiteKeyColor?: string;
+    activeBlackKeyColor?: string;
+    activeWhiteKeyContrastColor?: string;
+    activeBlackKeyContrastColor?: string;
 }
 
 export default function PianoKeyboard({
     activeNotes,
     startMidi,
-    activeWhiteColor = "#FFA500",
-    activeBlackColor = "#FF4500",
-    activeWhiteContrastColor = "black",
-    activeBlackContrastColor = "black",
+    whiteKeyColor = "white",
+    blackKeyColor = "black",
+    activeWhiteKeyColor = "#FFA500",
+    activeBlackKeyColor = "#FF4500",
+    activeWhiteKeyContrastColor = "black",
+    activeBlackKeyContrastColor = "black",
 }: PianoKeyboardProps) {
+    const theme = useTheme()
     let endMidi = startMidi;
     const whiteKeys: number[] = [];
 
@@ -92,9 +97,7 @@ export default function PianoKeyboard({
                             pointerEvents: "none",
                             userSelect: "none",
                             fontWeight: "bold",
-                            color: activeNotes.includes(wk.note)
-                                ? activeWhiteContrastColor
-                                : "#333",
+                            color: theme.palette.text.primary
                         }}
                     >
                         {wk.note}
@@ -115,7 +118,7 @@ export default function PianoKeyboard({
                             height: "100%",
                             border: "1px solid #666",
                             borderRadius: "0 0 6px 6px",
-                            backgroundColor: isActive ? activeWhiteColor : "white",
+                            backgroundColor: isActive ? activeWhiteKeyColor : whiteKeyColor,
                             boxSizing: "border-box",
                             cursor: "pointer",
                             boxShadow: { xs: "1px 2px 1px grey", md: "1px 5px 3px grey" },
@@ -132,7 +135,7 @@ export default function PianoKeyboard({
                                     textAlign: "center",
                                     fontSize: "0.8em",
                                     pointerEvents: "none",
-                                    color: activeWhiteContrastColor,
+                                    color: activeWhiteKeyContrastColor,
                                     fontWeight: "bold",
                                 }}
                             >
@@ -155,7 +158,7 @@ export default function PianoKeyboard({
                             left: `calc((${bk.whiteIndex} + 1) * (100% / ${NUM_WHITE_KEYS}) - (${BLACK_KEY_WIDTH_PERCENT}% / 2))`,
                             width: `${BLACK_KEY_WIDTH_PERCENT}%`,
                             height: `${BLACK_KEY_HEIGHT_PERCENT}%`,
-                            backgroundColor: isActive ? activeBlackColor : "black",
+                            backgroundColor: isActive ? activeBlackKeyColor : blackKeyColor,
                             border: "1px solid #222",
                             borderRadius: "0 0 4px 4px",
                             zIndex: 2,
@@ -173,7 +176,7 @@ export default function PianoKeyboard({
                                     right: 0,
                                     textAlign: "center",
                                     fontSize: "0.7em",
-                                    color: activeBlackContrastColor,
+                                    color: activeBlackKeyContrastColor,
                                     fontWeight: "bold",
                                     pointerEvents: "none",
                                 }}
