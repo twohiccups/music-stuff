@@ -1,17 +1,12 @@
 "use client";
 
 import React, { useState } from "react";
-import { Box, Button, Typography } from "@mui/material";
-import { chords } from "../../data/constants";
+import { Box, Button, Typography, useTheme } from "@mui/material";
 import MusicNoteIcon from '@mui/icons-material/MusicNote';
+import { chords } from "../../data/constants";
 
 interface ChordTableProps {
     playChord: (type: string, inversion: string) => void;
-    activeChordColor?: string;
-    inactiveChordColor?: string;
-    boxShadowColor?: string;
-    labelColor?: string;
-    activeLabelColor?: string;
 }
 
 // Define mappings for inversions
@@ -22,17 +17,10 @@ const INVERSION_MAP = [
     { label: "3rd", key: "inv3" },
 ];
 
-export default function ChordTable({
-    playChord,
-    activeChordColor = 'black',
-    inactiveChordColor = 'white',
-    boxShadowColor = 'grey',
-    labelColor = 'black',
-    activeLabelColor = 'blue'
-}: ChordTableProps) {
-    const chordTypes = Object.keys(chords);
+export default function ChordTable({ playChord }: ChordTableProps) {
+    const theme = useTheme();
 
-    // State to track selected chord and inversion
+    const chordTypes = Object.keys(chords);
     const [selectedChord, setSelectedChord] = useState<string | null>(null);
     const [selectedInversion, setSelectedInversion] = useState<string | null>(null);
 
@@ -41,7 +29,6 @@ export default function ChordTable({
         setSelectedInversion(inversion);
         playChord(type, inversion);
 
-        // Reset selection after 1.5 seconds
         setTimeout(() => {
             setSelectedChord(null);
             setSelectedInversion(null);
@@ -53,7 +40,7 @@ export default function ChordTable({
             <Box
                 sx={{
                     display: "grid",
-                    gridTemplateColumns: `80px repeat(${chordTypes.length}, 50px)`, // Desktop layout
+                    gridTemplateColumns: `80px repeat(${chordTypes.length}, 50px)`,
                     gap: 1,
                     padding: "2rem",
                     alignItems: "center",
@@ -107,13 +94,10 @@ export default function ChordTable({
                                 fontVariant: 'small-caps',
                                 whiteSpace: "nowrap",
                                 transition: "color 0.3s ease",
-                                color: selectedChord === type ? activeLabelColor : labelColor,
-                                "@media (max-width: 900px)": {
-                                    whiteSpace: "wrap",
-                                },
+                                color: selectedChord === type ? theme.palette.chord.activeLabel : theme.palette.chord.label,
+                                "@media (max-width: 900px)": { whiteSpace: "wrap" },
                                 padding: 1,
                                 borderRadius: 2
-
                             }}
                         >
                             {type}
@@ -132,7 +116,6 @@ export default function ChordTable({
                                 "@media (max-width: 900px)": {
                                     gridColumn: `${invIndex + 2} / span 1`,
                                     gridRow: "1 / span 1",
-                                    textAlign: "center",
                                     width: "auto",
                                     transform: "rotate(-60deg)",
                                 },
@@ -144,8 +127,8 @@ export default function ChordTable({
                                     whiteSpace: "nowrap",
                                     fontVariant: 'small-caps',
                                     fontWeight: "bold",
-                                    color: selectedInversion === key ? activeLabelColor : labelColor,
                                     transition: "color 0.3s ease",
+                                    color: selectedInversion === key ? theme.palette.chord.activeLabel : theme.palette.chord.label
                                 }}
                             >
                                 {label}
@@ -155,68 +138,43 @@ export default function ChordTable({
                         {/* Chord buttons */}
                         {chordTypes.map((type) => {
                             const chordExists = !!chords[type]?.[key];
-                            if (chordExists) {
-                                const isActiveChord = selectedChord === type && selectedInversion === key;
-                                return (
-                                    <Button
-                                        key={`${type}-${key}`}
-                                        onClick={() => handleChordClick(type, key)}
-                                        disabled={!chordExists}
-                                        variant="outlined"
-                                        sx={{
-                                            borderRadius: 5,
-                                            border: "none",
-                                            boxShadow: `0px 3px 2px ` + boxShadowColor,
-                                            width: "100%",
-                                            aspectRatio: "1/1",
-                                            minWidth: 40,
-                                            minHeight: 40,
-                                            padding: 0,
-                                            textAlign: "center",
-                                            fontSize: "0.8rem",
-                                            backgroundColor: isActiveChord ? activeChordColor : inactiveChordColor,
-                                            transition: "background-color 0.3s ease, border-color 0.3s ease",
-                                            "@media (max-width: 900px)": {
-                                                minWidth: "initial",
-                                                minHeight: "initial",
-                                                fontSize: "0.7rem",
-                                                gridColumn: `${invIndex + 2} / span 1`,
-                                                gridRow: `${chordTypes.indexOf(type) + 2} / span 1`,
-                                            },
-                                        }}
-                                    >
-                                        {chordExists ? <MusicNoteIcon /> : "x"}
-                                    </Button>
-                                );
-                            } else return (
+                            const isActiveChord = selectedChord === type && selectedInversion === key;
+                            return (
                                 <Button
                                     key={`${type}-${key}`}
-                                    disabled={true}
+                                    onClick={() => chordExists && handleChordClick(type, key)}
+                                    disabled={!chordExists}
                                     variant="outlined"
                                     sx={{
-                                        width: "100%",
                                         borderRadius: 5,
+                                        border: "none",
+                                        color: isActiveChord ? theme.palette.chord.activeIconColor : theme.palette.chord.iconColor,
+                                        boxShadow: `0px 3px 2px ${theme.palette.chord.shadow}`,
+                                        width: "100%",
                                         aspectRatio: "1/1",
                                         minWidth: 40,
                                         minHeight: 40,
                                         padding: 0,
-                                        border: 'none !important',
-                                        backgroundColor: inactiveChordColor,
+                                        textAlign: "center",
+                                        fontSize: "0.8rem",
+                                        backgroundColor: isActiveChord ? theme.palette.chord.active : theme.palette.chord.inactive,
+                                        transition: "background-color 0.3s ease, border-color 0.3s ease",
                                         "@media (max-width: 900px)": {
                                             minWidth: "initial",
                                             minHeight: "initial",
+                                            fontSize: "0.7rem",
                                             gridColumn: `${invIndex + 2} / span 1`,
                                             gridRow: `${chordTypes.indexOf(type) + 2} / span 1`,
                                         },
                                     }}
-                                >  </Button>
-
-                            )
-
+                                >
+                                    {chordExists ? <MusicNoteIcon /> : null}
+                                </Button>
+                            );
                         })}
                     </React.Fragment>
                 ))}
             </Box>
-        </Box >
+        </Box>
     );
 }

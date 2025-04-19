@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v15-appRouter';
 import "./globals.css";
 import { ThemeContextProvider } from "@src/contexts/themeContext";
+import { CssBaseline } from "@mui/material";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -33,6 +34,7 @@ export default function RootLayout({
         <AppRouterCacheProvider>
           <ThemeContextProvider>
             {children}
+            <CssBaseline />
           </ThemeContextProvider>
         </AppRouterCacheProvider>
 
