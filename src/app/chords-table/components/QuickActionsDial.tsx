@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
     SpeedDial,
     SpeedDialAction,
@@ -24,7 +24,27 @@ interface QuickActionsDialProps {
 export default function QuickActionsDial({ onOpenSettings }: QuickActionsDialProps) {
     const theme = useTheme();
     const [showThemeOptions, setShowThemeOptions] = useState(false);
-    const { setCurrentTheme, themeOptions } = useThemeContext();
+    const { currentTheme, setCurrentTheme, themeOptions } = useThemeContext();
+    const optionsRef = useRef<HTMLDivElement>(null);
+
+    // Close when clicking outside of the theme options box
+    useEffect(() => {
+        if (!showThemeOptions) return;
+
+        function handleClickOutside(event: MouseEvent) {
+            if (
+                optionsRef.current &&
+                !optionsRef.current.contains(event.target as Node)
+            ) {
+                setShowThemeOptions(false);
+            }
+        }
+
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, [showThemeOptions]);
 
     const quickActions = [
         {
@@ -44,6 +64,7 @@ export default function QuickActionsDial({ onOpenSettings }: QuickActionsDialPro
         <>
             {showThemeOptions && (
                 <Box
+                    ref={optionsRef}
                     sx={{
                         position: "fixed",
                         bottom: { xs: 80, md: 100 },
@@ -58,7 +79,6 @@ export default function QuickActionsDial({ onOpenSettings }: QuickActionsDialPro
                         p: 1,
                         boxShadow: "0 2px 10px rgba(0,0,0,0.2)",
 
-                        // mobile constraints
                         maxWidth: { xs: "90vw", md: "auto" },
                         maxHeight: { xs: "70vh", md: "auto" },
                         overflowY: { xs: "auto", md: "visible" },
@@ -72,7 +92,6 @@ export default function QuickActionsDial({ onOpenSettings }: QuickActionsDialPro
                                 setShowThemeOptions(false);
                             }}
                             sx={{
-                                // full‐width pills on mobile, auto‐width on desktop
                                 width: { xs: "100%", md: "auto" },
                                 px: 2,
                                 py: 1,
@@ -81,6 +100,7 @@ export default function QuickActionsDial({ onOpenSettings }: QuickActionsDialPro
                                 fontWeight: 500,
                                 textTransform: "capitalize",
                                 textAlign: "center",
+                                borderBottom: currentTheme === mode ? "3px solid grey" : ""
                             }}
                         >
                             {mode}

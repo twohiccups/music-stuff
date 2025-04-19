@@ -33,34 +33,37 @@ export default function PianoKeyboard({
         blackContrast,
     } = theme.palette.keyboard;
 
+    // Build white-key midi list
     let endMidi = startMidi;
     const whiteKeys: number[] = [];
-
-    // Gather white-key midi numbers
     while (whiteKeys.length < NUM_WHITE_KEYS) {
         const note = Tone.Frequency(endMidi, "midi").toNote() as string;
         if (!note.includes("#")) whiteKeys.push(endMidi);
         endMidi++;
     }
 
-    // Build full midi range
+    // Full range for black-key detection
     const midiNumbers: number[] = [];
-    for (let m = startMidi; m < endMidi; m++) midiNumbers.push(m);
+    for (let m = startMidi; m < endMidi; m++) {
+        midiNumbers.push(m);
+    }
 
-    // Map white keys
+    // White-key positions
     const whiteKeyPositions = whiteKeys.map((m, i) => ({
         midi: m,
         note: Tone.Frequency(m, "midi").toNote() as string,
         index: i,
     }));
 
-    // Map black keys relative to preceding white key
+    // Black-key positions
     const blackKeyPositions = midiNumbers
         .filter((m) => (Tone.Frequency(m, "midi").toNote() as string).includes("#"))
         .map((m) => {
             const note = Tone.Frequency(m, "midi").toNote() as string;
             const prevWhite = whiteKeyPositions.filter((wk) => wk.midi < m).slice(-1)[0];
-            return prevWhite ? { midi: m, note, whiteIndex: prevWhite.index } : null;
+            return prevWhite
+                ? { midi: m, note, whiteIndex: prevWhite.index }
+                : null;
         })
         .filter((x): x is { midi: number; note: string; whiteIndex: number } => !!x);
 
@@ -162,21 +165,52 @@ export default function PianoKeyboard({
                         }}
                     >
                         {isActive && (
-                            <Box
-                                sx={{
-                                    position: "absolute",
-                                    bottom: 2,
-                                    left: 0,
-                                    right: 0,
-                                    textAlign: "center",
-                                    fontSize: "0.7em",
-                                    color: blackContrast,
-                                    fontWeight: "bold",
-                                    pointerEvents: "none",
-                                }}
-                            >
-                                {noteLabel}
-                            </Box>
+                            <>
+                                {/* Mobile-first: superscript sharp */}
+                                <Box
+                                    sx={{
+                                        display: { xs: "block", md: "none" },
+                                        position: "absolute",
+                                        bottom: 2,
+                                        left: 0,
+                                        right: 0,
+                                        textAlign: "center",
+                                        fontSize: "0.65em",
+                                        color: blackContrast,
+                                        fontWeight: "bold",
+                                        pointerEvents: "none",
+                                    }}
+                                >
+                                    {noteLabel.replace("#", "")}
+                                    <Box
+                                        component="sup"
+                                        sx={{
+                                            verticalAlign: "super",
+                                            fontSize: "0.7em",
+                                        }}
+                                    >
+                                        #
+                                    </Box>
+                                </Box>
+
+                                {/* Desktop: normal label */}
+                                <Box
+                                    sx={{
+                                        display: { xs: "none", md: "block" },
+                                        position: "absolute",
+                                        bottom: 2,
+                                        left: 0,
+                                        right: 0,
+                                        textAlign: "center",
+                                        fontSize: "0.7em",
+                                        color: blackContrast,
+                                        fontWeight: "bold",
+                                        pointerEvents: "none",
+                                    }}
+                                >
+                                    {noteLabel}
+                                </Box>
+                            </>
                         )}
                     </Box>
                 );
