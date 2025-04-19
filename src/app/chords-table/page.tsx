@@ -99,12 +99,6 @@ export default function Page() {
           <PianoKeyboard
             activeNotes={activeNotes}
             startMidi={startMidi}
-            whiteKeyColor="white"
-            blackKeyColor="black"
-            activeWhiteKeyColor="#A2D2FF"
-            activeBlackKeyColor="#4A90E2"
-            activeWhiteKeyContrastColor="#003049"
-            activeBlackKeyContrastColor="#fff"
           />
           <ChordNotation
             baseNote={selectedNote}

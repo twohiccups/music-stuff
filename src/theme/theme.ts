@@ -1,6 +1,6 @@
 import { createTheme } from "@mui/material/styles";
 
-// Extend MUI Palette to include custom chord colors and icon colors
+// Extend MUI Palette to include custom chord & keyboard colors
 declare module '@mui/material/styles' {
   interface Palette {
     chord: {
@@ -11,6 +11,14 @@ declare module '@mui/material/styles' {
       activeLabel: string;
       iconColor: string;
       activeIconColor: string;
+    };
+    keyboard: {
+      white: string;
+      black: string;
+      activeWhite: string;
+      activeBlack: string;
+      whiteContrast: string;
+      blackContrast: string;
     };
   }
   interface PaletteOptions {
@@ -23,6 +31,14 @@ declare module '@mui/material/styles' {
       iconColor?: string;
       activeIconColor?: string;
     };
+    keyboard?: {
+      white?: string;
+      black?: string;
+      activeWhite?: string;
+      activeBlack?: string;
+      whiteContrast?: string;
+      blackContrast?: string;
+    };
   }
 }
 
@@ -34,14 +50,22 @@ export const themes = {
       background: { default: "#f4f6f8", paper: "#ffffff" },
       text: { primary: "#000000" },
       chord: {
-        active: "#A2D2FF",        // softened light blue button background when active
-        inactive: "#E1E8F2",      // light grey inactive button background
-        shadow: "rgba(0,0,0,0.2)", // soft shadow
-        label: "#000000",         // grid label default color
-        activeLabel: "#00A0B9",   // grid label when active
-        iconColor: "#000000",          // icon default color inside buttons
-        activeIconColor: "#003049",    // icon when button active
-      }
+        active: "#A2D2FF",
+        inactive: "#E1E8F2",
+        shadow: "rgba(0,0,0,0.2)",
+        label: "#000000",
+        activeLabel: "#003049",
+        iconColor: "#000000",
+        activeIconColor: "#003049",
+      },
+      keyboard: {
+        white: "#ffffff",
+        black: "#000000",
+        activeWhite: "#A2D2FF",
+        activeBlack: "#4A90E2",
+        whiteContrast: "#003049",
+        blackContrast: "#ffffff",
+      },
     },
   }),
 
@@ -59,7 +83,15 @@ export const themes = {
         activeLabel: "#b0bec5",
         iconColor: "#eceff1",
         activeIconColor: "#b0bec5",
-      }
+      },
+      keyboard: {
+        white: "#444444",
+        black: "#000000",
+        activeWhite: "#262626",
+        activeBlack: "#262626",
+        whiteContrast: "#eceff1",
+        blackContrast: "#eceff1",
+      },
     },
   }),
 
@@ -71,13 +103,21 @@ export const themes = {
       text: { primary: "#657b83" },
       chord: {
         active: "#268bd2",
-        inactive: "#93a1a1",
+        inactive: "#eee8d5",
         shadow: "rgba(0,43,54,0.2)",
         label: "#657b83",
-        activeLabel: "#fdf6e3",
+        activeLabel: "#268bd2",
         iconColor: "#657b83",
         activeIconColor: "#fdf6e3",
-      }
+      },
+      keyboard: {
+        white: "#eee8d5",
+        black: "#073642",
+        activeWhite: "#93a1a1",
+        activeBlack: "#268bd2",
+        whiteContrast: "#657b83",
+        blackContrast: "#fdf6e3",
+      },
     },
   }),
 
@@ -89,13 +129,21 @@ export const themes = {
       text: { primary: "#ffffff" },
       chord: {
         active: "#ffff00",
-        inactive: "#757575",
+        inactive: "#898989",
         shadow: "rgba(255,255,255,0.3)",
         label: "#ffffff",
-        activeLabel: "ffff00",
+        activeLabel: "#ffff00",
         iconColor: "#ffffff",
         activeIconColor: "#000000",
-      }
+      },
+      keyboard: {
+        white: "#000000",
+        black: "#ffffff",
+        activeWhite: "#ffff00",
+        activeBlack: "#268bd2",
+        whiteContrast: "#000000",
+        blackContrast: "#000000",
+      },
     },
   }),
 };
