@@ -1,16 +1,18 @@
-// src/contexts/PolyrhythmContext.tsx
 "use client";
 
-import React, { createContext, useContext, useState, useRef, useEffect, useCallback } from "react";
+import React, {
+    createContext,
+    useContext,
+    useReducer,
+    useState,
+    useCallback,
+    useEffect,
+} from "react";
 import * as Tone from "tone";
-import { usePolyrhythmScheduler } from "@src/hooks/usePolyrhythm";
+import { usePolyrhythmScheduler } from "@src/hooks/usePolyrhythmScheduler";
 import useInstruments from "@src/hooks/useInstruments";
 
-
-// gcd + lcm
-const gcd = (x: number, y: number): number => (!y ? x : gcd(y, x % y));
-const lcm = (a: number, b: number): number => (a * b) / gcd(a, b);
-
+// ─── Types ────────────────────────────────────────────────────
 export interface Beat { isOn: boolean; }
 export interface Track {
     index: number;
@@ -20,93 +22,216 @@ export interface Track {
     beats: Beat[];
 }
 
+// ─── Actions & Reducer ────────────────────────────────────────
+type Action =
+    | { type: "INIT_BEATS"; lcm: number }
+    | { type: "TOGGLE_ACTIVE"; idx: number }
+    | { type: "TOGGLE_MUTE"; idx: number }
+    | { type: "SET_BEAT_NUMBER"; idx: number; beatNumber: number }
+    | { type: "ROTATE"; idx: number; dir: "CW" | "CCW" }
+    | { type: "CLEAR"; idx: number }
+    | { type: "ADD_TRACK" }
+    | { type: "TOGGLE_BEAT"; idx: number; beatIdx: number };
+
+function tracksReducer(state: Track[], action: Action): Track[] {
+    switch (action.type) {
+        case "INIT_BEATS":
+            return state.map((t) =>
+                !t.isActive
+                    ? t
+                    : {
+                        ...t,
+                        beats: Array(action.lcm)
+                            .fill(0)
+                            .map((_, i) => ({ isOn: i % t.beatNumber === 0 })),
+                    }
+            );
+
+        case "TOGGLE_ACTIVE":
+            return state.map((t) =>
+                t.index === action.idx ? { ...t, isActive: !t.isActive } : t
+            );
+
+        case "TOGGLE_MUTE":
+            return state.map((t) =>
+                t.index === action.idx ? { ...t, isMute: !t.isMute } : t
+            );
+
+        case "SET_BEAT_NUMBER":
+            return state.map((t) =>
+                t.index !== action.idx
+                    ? t
+                    : (() => {
+                        const beats = t.beats.slice(0, action.beatNumber);
+                        while (beats.length < action.beatNumber) beats.push({ isOn: false });
+                        return { ...t, beatNumber: action.beatNumber, beats };
+                    })()
+            );
+
+        case "ROTATE":
+            return state.map((t) => {
+                if (t.index !== action.idx) return t;
+                const b = [...t.beats];
+                if (action.dir === "CW") {
+                    b.unshift(b.pop()!);
+                } else {
+                    b.push(b.shift()!);
+                }
+                return { ...t, beats: b };
+            });
+
+        case "CLEAR":
+            return state.map((t) =>
+                t.index === action.idx
+                    ? { ...t, beats: t.beats.map(() => ({ isOn: false })) }
+                    : t
+            );
+
+        case "ADD_TRACK":
+            if (state.length >= 4) return state;
+            return [
+                ...state,
+                {
+                    index: state.length,
+                    isActive: true,
+                    isMute: false,
+                    beatNumber: 4,
+                    beats: [],
+                },
+            ];
+
+        case "TOGGLE_BEAT":
+            return state.map((t) =>
+                t.index !== action.idx || !t.isActive
+                    ? t
+                    : {
+                        ...t,
+                        beats: t.beats.map((b, i) =>
+                            i === action.beatIdx ? { isOn: !b.isOn } : b
+                        ),
+                    }
+            );
+
+        default:
+            return state;
+    }
+}
+
+// ─── Context & Provider ────────────────────────────────────────
 interface ContextValue {
     tracks: Track[];
     tempo: number;
     isPlaying: boolean;
     currentBeatIndex: number;
     globalLCM: number;
-    initializeBeats: () => void;
-    createPolyrhythm: () => Promise<void>;
+    toggleActiveTrack: (idx: number) => void;
+    toggleMuteTrack: (idx: number) => void;
+    changeBeatNumber: (idx: number, beatNumber: number) => void;
+    rotateTrack: (idx: number, dir: "CW" | "CCW") => void;
+    clearTrack: (idx: number) => void;
+    addTrack: () => void;
+    toggleBeat: (idx: number, beatIdx: number) => void;
+    setTempo: React.Dispatch<React.SetStateAction<number>>;
     togglePlay: () => void;
-    updateTrack: (idx: number, patch: Partial<Track>) => void;
-    setTempo: (t: number) => void;
 }
 
 const PolyrhythmContext = createContext<ContextValue | undefined>(undefined);
-
 export const usePolyrhythm = () => {
     const ctx = useContext(PolyrhythmContext);
     if (!ctx) throw new Error("usePolyrhythm must be inside PolyrhythmProvider");
     return ctx;
 };
 
-export const PolyrhythmProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const PolyrhythmProvider: React.FC<{ children: React.ReactNode }> = ({
+    children,
+}) => {
     const synth = useInstruments("piano");
 
-    const [tracks, setTracks] = useState<Track[]>(
-        Array.from({ length: 4 }).map((_, i) => ({
-            index: i,
-            isActive: i < 2,
-            isMute: false,
-            beatNumber: i < 2 ? (i === 0 ? 4 : 3) : 4,
-            beats: [],
-        }))
-    );
+    // default tracks
+    const [tracks, dispatch] = useReducer(tracksReducer, [
+        { index: 0, isActive: true, isMute: false, beatNumber: 4, beats: [] },
+        { index: 1, isActive: true, isMute: false, beatNumber: 3, beats: [] },
+        { index: 2, isActive: false, isMute: false, beatNumber: 4, beats: [] },
+        { index: 3, isActive: false, isMute: false, beatNumber: 4, beats: [] },
+    ]);
     const [tempo, setTempo] = useState(120);
     const [isPlaying, setPlaying] = useState(false);
-    const [currentBeatIndex, setCurrentBeatIndex] = useState(0);
+    const [currentBeatIndex, setCurrent] = useState(0);
 
-    const tracksRef = useRef(tracks);
-    useEffect(() => { tracksRef.current = tracks }, [tracks]);
+    // compute LCM
+    const gcd = (a: number, b: number): number => (!b ? a : gcd(b, a % b));
+    const lcmCalc = (a: number, b: number) => (a * b) / gcd(a, b);
+    const activeCounts = tracks.filter((t) => t.isActive).map((t) => t.beatNumber);
+    const globalLCM =
+        activeCounts.length > 0
+            ? activeCounts.reduce((acc, n) => lcmCalc(acc, n), activeCounts[0])
+            : 1;
 
-    const globalLCM = React.useMemo(() => {
-        const actives = tracks.filter(t => t.isActive).map(t => t.beatNumber);
-        return actives.length ? actives.reduce(lcm, actives[0]) : 1;
-    }, [tracks]);
+    // tick handler
+    const handleTick = useCallback(
+        (step: number, time: number) => {
+            Tone.Draw.schedule(() => setCurrent(step), time);
+            tracks.forEach((t) => {
+                if (t.isActive && !t.isMute && t.beats[step]?.isOn) {
+                    synth?.triggerAttackRelease("C4", "8n", time);
+                }
+            });
+        },
+        [synth, tracks]
+    );
 
-    const initializeBeats = () => {
-        setTracks(ts =>
-            ts.map(t => {
-                if (!t.isActive) return t;
-                return {
-                    ...t,
-                    beats: Array(globalLCM).fill(0).map((_, i) => ({
-                        isOn: i % t.beatNumber === 0
-                    })),
-                };
-            })
-        );
-        setCurrentBeatIndex(0);
-    };
-
-    const handleTick = useCallback((nextIndex: number, time: number) => {
-        setCurrentBeatIndex(nextIndex);
-        tracksRef.current.forEach(t => {
-            if (t.isActive && !t.isMute && t.beats[nextIndex]?.isOn) {
-                synth?.triggerAttackRelease("C4", "8n", time);
-            }
-        });
-    }, [synth]);
-
-    // schedule the loop
-    usePolyrhythmScheduler(globalLCM, tempo, tracksRef, handleTick);
-
-    const createPolyrhythm = async () => {
+    // single “create” function
+    const createPolyrhythm = useCallback(async () => {
         await Tone.start();
-        initializeBeats();
-        if (!isPlaying) {
-            Tone.Transport.start();
-            setPlaying(true);
-        }
+        dispatch({ type: "INIT_BEATS", lcm: globalLCM });
+        setCurrent(0);
+        Tone.Transport.stop();
+        Tone.Transport.position = "0:0:0";
+        Tone.Transport.start();
+        setPlaying(true);
+    }, [globalLCM]);
+
+    // initialize on mount
+    useEffect(() => {
+        createPolyrhythm();
+    }, [createPolyrhythm]);
+
+    // schedule loop
+    usePolyrhythmScheduler(globalLCM, tempo, handleTick);
+
+    // wrapped actions
+    const toggleActiveTrack = (idx: number) => {
+        dispatch({ type: "TOGGLE_ACTIVE", idx });
+        createPolyrhythm();
     };
+    const toggleMuteTrack = (idx: number) => {
+        dispatch({ type: "TOGGLE_MUTE", idx });
+        createPolyrhythm();
+    };
+    const changeBeatNumber = (idx: number, beatNumber: number) => {
+        dispatch({ type: "SET_BEAT_NUMBER", idx, beatNumber });
+        createPolyrhythm();
+    };
+    const rotateTrack = (idx: number, dir: "CW" | "CCW") => {
+        dispatch({ type: "ROTATE", idx, dir });
+    };
+    const clearTrack = (idx: number) => {
+        dispatch({ type: "CLEAR", idx });
+    };
+    const addTrack = () => {
+        dispatch({ type: "ADD_TRACK" });
+        createPolyrhythm();
+    };
+    const toggleBeat = (idx: number, beatIdx: number) => {
+        dispatch({ type: "TOGGLE_BEAT", idx, beatIdx });
+    };
+
+    // play/pause
     const togglePlay = () => {
         if (isPlaying) Tone.Transport.pause();
         else Tone.Transport.start();
-        setPlaying(p => !p);
+        setPlaying((p) => !p);
     };
-    const updateTrack = (idx: number, patch: Partial<Track>) =>
-        setTracks(ts => ts.map(t => (t.index === idx ? { ...t, ...patch } : t)));
 
     return (
         <PolyrhythmContext.Provider
@@ -116,11 +241,15 @@ export const PolyrhythmProvider: React.FC<{ children: React.ReactNode }> = ({ ch
                 isPlaying,
                 currentBeatIndex,
                 globalLCM,
-                initializeBeats,
-                createPolyrhythm,
-                togglePlay,
-                updateTrack,
+                toggleActiveTrack,
+                toggleMuteTrack,
+                changeBeatNumber,
+                rotateTrack,
+                clearTrack,
+                addTrack,
+                toggleBeat,
                 setTempo,
+                togglePlay,
             }}
         >
             {children}

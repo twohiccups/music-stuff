@@ -11,6 +11,9 @@ export default function Home() {
       <Card sx={{ padding: 4 }}>
         <Link href="/chords-table">Chords Table</Link>
       </Card>
+      <Card sx={{ padding: 4 }}>
+        <Link href="/polyrhythm">Polyrhythm</Link>
+      </Card>
     </Box>
   );
 }

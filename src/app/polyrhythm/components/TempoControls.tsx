@@ -2,7 +2,7 @@
 "use client";
 
 import React from "react";
-import { Box, Slider, IconButton } from "@mui/material";
+import { Box, Slider, IconButton, Typography } from "@mui/material";
 import RemoveIcon from "@mui/icons-material/Remove";
 import AddIcon from "@mui/icons-material/Add";
 
@@ -26,34 +26,31 @@ export default function TempoControls({ tempo, onTempoChange }: Props) {
                 gap: { xs: 1, md: 2 },
             }}
         >
-            <IconButton
-                size="small"
-                onClick={decrease}
-                aria-label="Decrease tempo"
-            >
+            <IconButton size="small" onClick={decrease} aria-label="Decrease tempo">
                 <RemoveIcon fontSize="small" />
             </IconButton>
 
             <Slider
                 value={tempo}
-                onChange={(_, v) => onTempoChange(v as number)}
                 min={30}
                 max={400}
-                sx={{
-                    flex: 1,
-                    mx: { xs: 0.5, md: 2 },
-                }}
+                step={1}
                 size="small"
                 aria-label="Tempo"
+                sx={{ flex: 1, mx: { xs: 0.5, md: 2 } }}
+                onChange={(_, v) => onTempoChange(v as number)}
             />
 
-            <IconButton
-                size="small"
-                onClick={increase}
-                aria-label="Increase tempo"
-            >
+            <IconButton size="small" onClick={increase} aria-label="Increase tempo">
                 <AddIcon fontSize="small" />
             </IconButton>
+
+            <Typography
+                variant="body2"
+                sx={{ width: 48, textAlign: "center", userSelect: "none" }}
+            >
+                {tempo}
+            </Typography>
         </Box>
     );
 }
