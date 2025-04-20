@@ -182,9 +182,13 @@ export const PolyrhythmProvider: React.FC<{ children: React.ReactNode }> = ({
 
     // single “create” function
     const createPolyrhythm = useCallback(async () => {
-        await Tone.start();
+        // 1. now we initialise the beats immediately
         dispatch({ type: "INIT_BEATS", lcm: globalLCM });
         setCurrent(0);
+
+        // 2. audio‑context startup (this will still wait for a user gesture,
+        //    but your visuals are already populated)
+        await Tone.start();
         Tone.Transport.stop();
         Tone.Transport.position = "0:0:0";
         Tone.Transport.start();
@@ -208,10 +212,16 @@ export const PolyrhythmProvider: React.FC<{ children: React.ReactNode }> = ({
         dispatch({ type: "TOGGLE_MUTE", idx });
         createPolyrhythm();
     };
+    // inside your PolyrhythmProvider, replace the old changeBeatNumber with:
+
     const changeBeatNumber = (idx: number, beatNumber: number) => {
+        const track = tracks.find((t) => t.index === idx);
         dispatch({ type: "SET_BEAT_NUMBER", idx, beatNumber });
-        createPolyrhythm();
+        if (track?.isActive) {
+            createPolyrhythm();
+        }
     };
+
     const rotateTrack = (idx: number, dir: "CW" | "CCW") => {
         dispatch({ type: "ROTATE", idx, dir });
     };

@@ -2,13 +2,7 @@
 "use client";
 
 import React from "react";
-import {
-    Box,
-    IconButton,
-    TextField,
-    useTheme,
-    useMediaQuery,
-} from "@mui/material";
+import { Box, IconButton, TextField } from "@mui/material";
 import ToggleOnIcon from "@mui/icons-material/ToggleOn";
 import ToggleOffIcon from "@mui/icons-material/ToggleOff";
 import VolumeUpIcon from "@mui/icons-material/VolumeUp";
@@ -41,41 +35,35 @@ export default function TrackControls({
     onClearRhythm,
     onChangeBeatNumber,
 }: Props) {
-    const theme = useTheme();
-    const isSmUp = useMediaQuery(theme.breakpoints.up("sm"));
-
     return (
         <Box
             sx={{
                 width: "100%",
-                p: { xs: 1, sm: 2 },
+                p: { xs: 2, sm: 2 },
                 border: 1,
                 borderColor: "divider",
                 borderRadius: 2,
                 bgcolor: "background.paper",
                 display: "flex",
-                flexDirection: { xs: "column", sm: "row" },
+                flexDirection: "row",            // always row
                 alignItems: "center",
                 justifyContent: "space-between",
-                gap: { xs: 1, sm: 2 },
-                transition: "background-color 0.3s",
+                gap: { xs: 1.5, sm: 2 },         // a bit tighter on xs
             }}
         >
             {/* activation & mute toggles */}
-            <Box sx={{ display: "flex", gap: { xs: 1, sm: 2 } }}>
-                <IconButton onClick={onSwitchActive} size={isSmUp ? "large" : "medium"}>
-                    {isActive ? (
-                        <ToggleOnIcon fontSize={isSmUp ? "large" : "medium"} />
-                    ) : (
-                        <ToggleOffIcon fontSize={isSmUp ? "large" : "medium"} />
-                    )}
+            <Box sx={{ display: "flex", gap: 1 }}>
+                <IconButton
+                    onClick={onSwitchActive}
+                    sx={{ p: { xs: 1.25, sm: 1 }, "& .MuiSvgIcon-root": { fontSize: { xs: 24, sm: 28 } } }}
+                >
+                    {isActive ? <ToggleOnIcon /> : <ToggleOffIcon />}
                 </IconButton>
-                <IconButton onClick={onSwitchMute} size={isSmUp ? "large" : "medium"}>
-                    {isMute ? (
-                        <VolumeOffIcon fontSize={isSmUp ? "large" : "medium"} />
-                    ) : (
-                        <VolumeUpIcon fontSize={isSmUp ? "large" : "medium"} />
-                    )}
+                <IconButton
+                    onClick={onSwitchMute}
+                    sx={{ p: { xs: 1.25, sm: 1 }, "& .MuiSvgIcon-root": { fontSize: { xs: 24, sm: 28 } } }}
+                >
+                    {isMute ? <VolumeOffIcon /> : <VolumeUpIcon />}
                 </IconButton>
             </Box>
 
@@ -86,27 +74,31 @@ export default function TrackControls({
                 value={beatNumber}
                 onChange={(e) => onChangeBeatNumber(+e.target.value)}
                 size="small"
-                sx={{
-                    width: { xs: "100%", sm: "64px" },
-                }}
+                sx={{ width: { xs: "56px", sm: "64px" } }}
             />
 
             {/* rotation controls */}
-            <Box sx={{ display: "flex", gap: { xs: 1, sm: 2 } }}>
+            <Box sx={{ display: "flex", gap: 1 }}>
                 <IconButton
                     onClick={onRotateCCW}
-                    size={isSmUp ? "large" : "medium"}
+                    sx={{ p: { xs: 1.25, sm: 1 }, "& .MuiSvgIcon-root": { fontSize: { xs: 24, sm: 28 } } }}
                 >
-                    <RotateLeftIcon fontSize={isSmUp ? "large" : "medium"} />
+                    <RotateLeftIcon />
                 </IconButton>
-                <IconButton onClick={onRotateCW} size={isSmUp ? "large" : "medium"}>
-                    <RotateRightIcon fontSize={isSmUp ? "large" : "medium"} />
+                <IconButton
+                    onClick={onRotateCW}
+                    sx={{ p: { xs: 1.25, sm: 1 }, "& .MuiSvgIcon-root": { fontSize: { xs: 24, sm: 28 } } }}
+                >
+                    <RotateRightIcon />
                 </IconButton>
             </Box>
 
             {/* clear/delete */}
-            <IconButton onClick={onClearRhythm} size={isSmUp ? "large" : "medium"}>
-                <DeleteIcon fontSize={isSmUp ? "large" : "medium"} />
+            <IconButton
+                onClick={onClearRhythm}
+                sx={{ p: { xs: 1.25, sm: 1 }, "& .MuiSvgIcon-root": { fontSize: { xs: 24, sm: 28 } } }}
+            >
+                <DeleteIcon />
             </IconButton>
         </Box>
     );
