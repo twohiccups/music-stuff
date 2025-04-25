@@ -95,35 +95,40 @@ const standardNoteAssignment = {
   "C8": "C8.mp3",
 }
 
+const instrumentInstances: Record<string, Tone.PolySynth | Tone.Sampler> = {};
+
+function createInstrument(instrument: string): Tone.PolySynth | Tone.Sampler {
+  if (instrument === "piano") {
+    return new Tone.Sampler({
+      urls: standardNoteAssignment,
+      baseUrl: "https://twohiccups.github.io/instrument-sounds/piano-mp3/",
+      onload: () => console.log("Piano instrument loaded"),
+    }).toDestination();
+  } else if (instrument === "violin") {
+    return new Tone.Sampler({
+      urls: standardNoteAssignment,
+      baseUrl: "https://twohiccups.github.io/instrument-sounds/violin-mp3/",
+      onload: () => console.log("Violin instrument loaded"),
+    }).toDestination();
+  } else {
+    return new Tone.PolySynth(Tone.Synth).toDestination();
+  }
+}
+
+// ─── Hook ──────────────────────────────────────────────────────
 export default function useInstruments(instrument: string): Tone.PolySynth | Tone.Sampler | null {
   const [synth, setSynth] = useState<Tone.PolySynth | Tone.Sampler | null>(null);
 
   useEffect(() => {
-    let currentSynth: Tone.PolySynth | Tone.Sampler;
-
-    if (instrument === "piano") {
-      currentSynth = new Tone.Sampler({
-        urls: standardNoteAssignment,
-        baseUrl: "https://twohiccups.github.io/instrument-sounds/piano-mp3/",
-        onload: () => console.log("Piano instrument loaded"),
-      }).toDestination();
-    } else if (instrument === "violin") {
-      currentSynth = new Tone.Sampler({
-        urls: standardNoteAssignment,
-        baseUrl: "https://twohiccups.github.io/instrument-sounds/violin-mp3/",
-        onload: () => console.log("Violin instrument loaded"),
-      }).toDestination();
-    } else {
-      currentSynth = new Tone.PolySynth(Tone.Synth).toDestination();
+    if (!instrumentInstances[instrument]) {
+      instrumentInstances[instrument] = createInstrument(instrument);
     }
 
-    setSynth(currentSynth);
+    const instance = instrumentInstances[instrument];
+    setSynth(instance);
 
     return () => {
-      if (currentSynth instanceof Tone.PolySynth) {
-        currentSynth.releaseAll();
-      }
-      currentSynth.dispose();
+      // Don't dispose singleton instance
       setSynth(null);
     };
   }, [instrument]);
