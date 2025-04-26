@@ -4,6 +4,10 @@ import { AppRouterCacheProvider } from '@mui/material-nextjs/v15-appRouter';
 import "./globals.css";
 import { ThemeContextProvider } from "@src/contexts/themeContext";
 import { CssBaseline } from "@mui/material";
+import { CommonActionsProvider } from "@src/contexts/commonActionsContext";
+
+
+
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -27,18 +31,24 @@ export default function RootLayout({
 }>) {
 
 
+
+
+
+
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
 
         <AppRouterCacheProvider>
           <ThemeContextProvider>
-            {children}
+            <CommonActionsProvider>
+              {children}
+            </CommonActionsProvider>
             <CssBaseline />
           </ThemeContextProvider>
         </AppRouterCacheProvider>
 
       </body>
-    </html>
+    </html >
   );
 }
