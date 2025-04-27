@@ -3,15 +3,17 @@
 
 import React, { createContext, useContext, useReducer, useEffect, useRef } from "react";
 import * as Tone from "tone";
+import useInstruments, { percussionSampleMap } from "@src/hooks/useInstruments";
 
 // ─── Types ──────────────────────────────────────────────────
-export interface Beat { isOn: boolean }
+export interface Beat { isOn: boolean; }
 export interface Track {
     index: number;
     beatNumber: number;
-    beats: Beat[];            // always length === state.lcm
+    beats: Beat[];            // length === state.lcm
     isActive: boolean;
     isMute: boolean;
+    sampleName: string;       // which percussion sample to play
 }
 
 interface State {
@@ -22,38 +24,55 @@ interface State {
 }
 
 type Action =
-    | { type: 'REBUILD_BEATS'; lcm: number }
-    | { type: 'ADVANCE_BEAT'; next: number }
-    | { type: 'TOGGLE_BEAT'; trackIdx: number; step: number }
-    | { type: 'TOGGLE_ACTIVE'; trackIdx: number }
-    | { type: 'TOGGLE_MUTE'; trackIdx: number }
-    | { type: 'CHANGE_BEATNUMBER'; trackIdx: number; beatNumber: number }
-    | { type: 'CHANGE_TEMPO'; tempo: number }
-    | { type: 'ROTATE_CW'; trackIdx: number }
-    | { type: 'ROTATE_CCW'; trackIdx: number };
+    | { type: "ADVANCE_BEAT"; next: number }
+    | { type: "TOGGLE_BEAT"; trackIdx: number; step: number }
+    | { type: "TOGGLE_ACTIVE"; trackIdx: number }
+    | { type: "TOGGLE_MUTE"; trackIdx: number }
+    | { type: "CHANGE_BEATNUMBER"; trackIdx: number; beatNumber: number }
+    | { type: "CHANGE_SAMPLE"; trackIdx: number; sampleName: string }
+    | { type: "CHANGE_TEMPO"; tempo: number }
+    | { type: "ROTATE_CW"; trackIdx: number }
+    | { type: "ROTATE_CCW"; trackIdx: number };
 
-// ─── Helpers to compute GCD/LCM ─────────────────────────────
-function gcd(a: number, b: number): number {
-    return b === 0 ? a : gcd(b, a % b);
-}
-function lcm(a: number, b: number): number {
-    return (a * b) / gcd(a, b);
+// ─── Helpers ────────────────────────────────────────────────
+function gcd(a: number, b: number): number { return b === 0 ? a : gcd(b, a % b); }
+function lcm(a: number, b: number): number { return (a * b) / gcd(a, b); }
+
+/**
+ * Given an array of tracks, compute new LCM and rebuild each track.beats
+ */
+function rebuildState(tracks: Track[]): { tracks: Track[]; lcm: number } {
+    const activeBeats = tracks.filter(t => t.isActive).map(t => t.beatNumber);
+    const newLcm = activeBeats.length === 0
+        ? 1
+        : activeBeats.reduce((acc, n) => lcm(acc, n), activeBeats[0]);
+
+    const rebuilt = tracks.map(t => ({
+        ...t,
+        beats: Array.from({ length: newLcm }, (_, i) => ({
+            isOn: t.isActive ? i % t.beatNumber === 0 : false,
+        })),
+    }));
+
+    return { tracks: rebuilt, lcm: newLcm };
 }
 
 // ─── Initial setup ─────────────────────────────────────────
-// Define four tracks; first two enabled, last two disabled
 const initialBeatNumbers = [4, 3, 4, 3];
-const initialActiveNumbers = initialBeatNumbers.slice(0, 2);
-const initialLcm = initialActiveNumbers.reduce((acc, n) => lcm(acc, n), initialActiveNumbers[0]);
-const initialTracks: Track[] = initialBeatNumbers.map((bn, idx) => ({
-    index: idx,
-    beatNumber: bn,
-    isActive: idx < 2,
-    isMute: false,
-    beats: Array.from({ length: initialLcm }, (_, i) => ({
-        isOn: idx < 2 ? i % bn === 0 : false,
-    })),
-}));
+const sampleNames = Object.keys(percussionSampleMap);
+const {
+    tracks: initialTracks,
+    lcm: initialLcm,
+} = rebuildState(
+    initialBeatNumbers.map((bn, idx) => ({
+        index: idx,
+        beatNumber: bn,
+        isActive: idx < 2,
+        isMute: false,
+        beats: [],      // will be set in rebuildState
+        sampleName: sampleNames[idx] || sampleNames[0],
+    })) as Track[]
+);
 
 const initialState: State = {
     tracks: initialTracks,
@@ -62,103 +81,74 @@ const initialState: State = {
     tempo: 120,
 };
 
+// ─── Reducer ────────────────────────────────────────────────
 function reducer(state: State, action: Action): State {
     switch (action.type) {
-        case 'REBUILD_BEATS':
-            return {
-                ...state,
-                lcm: action.lcm,
-                tracks: state.tracks.map(t => ({
-                    ...t,
-                    beats: Array.from({ length: action.lcm }, (_, i) => ({
-                        isOn: i % t.beatNumber === 0,
-                    })),
-                })),
-            };
-
-        case 'ADVANCE_BEAT':
+        case "ADVANCE_BEAT":
             return { ...state, currentBeat: action.next };
 
-        case 'TOGGLE_BEAT':
+        case "TOGGLE_BEAT":
             return {
                 ...state,
                 tracks: state.tracks.map(t =>
                     t.index === action.trackIdx
-                        ? {
-                            ...t,
-                            beats: t.beats.map((b, i) =>
-                                i === action.step ? { isOn: !b.isOn } : b
-                            ),
-                        }
+                        ? { ...t, beats: t.beats.map((b, i) => i === action.step ? { isOn: !b.isOn } : b) }
                         : t
                 ),
             };
 
-        case 'TOGGLE_ACTIVE':
+        case "TOGGLE_ACTIVE": {
+            const toggled = state.tracks.map(t =>
+                t.index === action.trackIdx ? { ...t, isActive: !t.isActive } : t
+            );
+            const { tracks, lcm } = rebuildState(toggled);
+            return { ...state, tracks, lcm };
+        }
+
+        case "CHANGE_BEATNUMBER": {
+            const updated = state.tracks.map(t =>
+                t.index === action.trackIdx ? { ...t, beatNumber: action.beatNumber } : t
+            );
+            const { tracks, lcm } = rebuildState(updated);
+            return { ...state, tracks, lcm };
+        }
+
+        case "CHANGE_SAMPLE":
             return {
                 ...state,
-                tracks: state.tracks.map(t => {
-                    if (t.index !== action.trackIdx) return t;
-                    const nowActive = !t.isActive;
-                    return {
-                        ...t,
-                        isActive: nowActive,
-                        beats: nowActive
-                            ? Array.from({ length: state.lcm }, (_, i) => ({
-                                isOn: i % t.beatNumber === 0,
-                            }))
-                            : t.beats,
-                    };
-                }),
+                tracks: state.tracks.map(t =>
+                    t.index === action.trackIdx ? { ...t, sampleName: action.sampleName } : t
+                ),
             };
 
-        case 'TOGGLE_MUTE':
+        case "CHANGE_TEMPO":
+            return { ...state, tempo: action.tempo };
+
+        case "ROTATE_CW":
+            return {
+                ...state,
+                tracks: state.tracks.map(t =>
+                    t.index === action.trackIdx
+                        ? { ...t, beats: [t.beats[t.beats.length - 1], ...t.beats.slice(0, -1)] }
+                        : t
+                ),
+            };
+
+        case "ROTATE_CCW":
+            return {
+                ...state,
+                tracks: state.tracks.map(t =>
+                    t.index === action.trackIdx
+                        ? { ...t, beats: [...t.beats.slice(1), t.beats[0]] }
+                        : t
+                ),
+            };
+
+        case "TOGGLE_MUTE":
             return {
                 ...state,
                 tracks: state.tracks.map(t =>
                     t.index === action.trackIdx ? { ...t, isMute: !t.isMute } : t
-                ),
-            };
-
-        case 'CHANGE_BEATNUMBER':
-            return {
-                ...state,
-                tracks: state.tracks.map(t =>
-                    t.index === action.trackIdx
-                        ? { ...t, beatNumber: action.beatNumber }
-                        : t
-                ),
-            };
-
-        case 'ROTATE_CW':
-            return {
-                ...state,
-                tracks: state.tracks.map(t =>
-                    t.index === action.trackIdx
-                        ? {
-                            ...t,
-                            beats: [
-                                t.beats[t.beats.length - 1],
-                                ...t.beats.slice(0, t.beats.length - 1),
-                            ],
-                        }
-                        : t
-                ),
-            };
-
-        case 'ROTATE_CCW':
-            return {
-                ...state,
-                tracks: state.tracks.map(t =>
-                    t.index === action.trackIdx
-                        ? {
-                            ...t,
-                            beats: [
-                                ...t.beats.slice(1),
-                                t.beats[0],
-                            ],
-                        }
-                        : t
                 ),
             };
 
@@ -171,49 +161,53 @@ const PolyrhythmContext = createContext<{ state: State; dispatch: React.Dispatch
 
 export const PolyrhythmProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [state, dispatch] = useReducer(reducer, initialState);
-    const beatRef = useRef(state.currentBeat);
 
-    // keep beatRef in sync
+    // refs to hold latest state slices without rescheduling
+    const beatRef = useRef(state.currentBeat);
+    const tracksRef = useRef(state.tracks);
+    const lcmRef = useRef(state.lcm);
     useEffect(() => {
         beatRef.current = state.currentBeat;
-    }, [state.currentBeat]);
+        tracksRef.current = state.tracks;
+        lcmRef.current = state.lcm;
+    }, [state]);
 
-    // recompute LCM when active tracks change
-    useEffect(() => {
-        const nums = state.tracks.filter(t => t.isActive).map(t => t.beatNumber);
-        const newLcm = nums.length ? nums.reduce((acc, n) => lcm(acc, n), nums[0]) : 1;
-        if (newLcm !== state.lcm) {
-            dispatch({ type: 'REBUILD_BEATS', lcm: newLcm });
-        }
-    }, [state.tracks]);
+    const sampler = useInstruments("percussion");
 
-    // schedule Tone.js Transport
+    // schedule once unless sampler or tempo changes
     useEffect(() => {
-        (async () => {
+        if (!sampler) return;
+        let id: number;
+
+        const start = async () => {
             await Tone.start();
+            await Tone.loaded(); // ensure buffers loaded
             Tone.Transport.cancel();
             Tone.Transport.stop();
             Tone.Transport.bpm.value = state.tempo;
 
-            const synths = state.tracks.map(() => new Tone.Synth().toDestination());
-            const id = Tone.Transport.scheduleRepeat((time) => {
-                const next = (beatRef.current + 1) % state.lcm;
-                dispatch({ type: 'ADVANCE_BEAT', next });
+            id = Tone.Transport.scheduleRepeat((time) => {
+                const next = (beatRef.current + 1) % lcmRef.current;
+                dispatch({ type: "ADVANCE_BEAT", next });
 
-                state.tracks.forEach((t, ti) => {
+                tracksRef.current.forEach((t) => {
                     if (!t.isActive || t.isMute) return;
-                    if (t.beats[next].isOn) synths[ti].triggerAttackRelease('C4', '8n', time);
+                    if (t.beats[next].isOn) {
+                        const note = percussionSampleMap[t.sampleName];
+                        sampler.triggerAttackRelease(note, "8n", time);
+                    }
                 });
-            }, '8n');
+            }, "8n");
 
-            Tone.Transport.start('+0.1');
-            return () => {
-                Tone.Transport.clear(id);
-                Tone.Transport.stop();
-                synths.forEach(s => s.dispose());
-            };
-        })();
-    }, [state.tracks, state.lcm, state.tempo]);
+            Tone.Transport.start("+0.1");
+        };
+
+        start();
+        return () => {
+            if (id !== undefined) Tone.Transport.clear(id);
+            Tone.Transport.stop();
+        };
+    }, [sampler, state.tempo]);
 
     return (
         <PolyrhythmContext.Provider value={{ state, dispatch }}>
@@ -224,6 +218,6 @@ export const PolyrhythmProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
 export const usePolyrhythm = () => {
     const ctx = useContext(PolyrhythmContext);
-    if (!ctx) throw new Error('usePolyrhythm must be used within PolyrhythmProvider');
+    if (!ctx) throw new Error("usePolyrhythm must be used within PolyrhythmProvider");
     return ctx;
 };

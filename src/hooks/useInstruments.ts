@@ -2,9 +2,10 @@
 import { useEffect, useState } from "react";
 import * as Tone from "tone";
 
-
-
-const standardNoteAssignment = {
+//
+// ─── STANDARD PIANO/VIOLIN ASSIGNMENT ────────────────────────
+//
+const standardNoteAssignment: Record<string, string> = {
   "A0": "A0.mp3",
   "A#0": "Bb0.mp3",
   "B0": "B0.mp3",
@@ -93,45 +94,108 @@ const standardNoteAssignment = {
   "A#7": "Bb7.mp3",
   "B7": "B7.mp3",
   "C8": "C8.mp3",
-}
+};
 
+//
+// ─── PERCUSSION SAMPLE URLS ───────────────────────────────────
+//
+const percussionNoteUrls: Record<string, string> = {
+  "C1": "cardboard.wav",
+  "C#1": "cl-bongo-2.wav",
+  "D1": "drum-machine-kick.wav",
+  "D#1": "electro-kick.wav",
+  "E1": "layered-snare.wav",
+  "F1": "metallic.wav",
+  "F#1": "plastic.wav",
+  "G1": "plastic-2.wav",
+  "G#1": "psytrance-kick.wav",
+  "A1": "samples_4.wav",
+  "A#1": "samples_bass.wav",
+  "B1": "samples_bongo.wav",
+  "C2": "samples_bop.wav",
+  "C#2": "samples_cowbell.wav",
+  "D2": "samples_doom.wav",
+  "D#2": "samples_drum.mp3",
+  "E2": "samples_drum-2.mp3",
+  "F2": "samples_drum-3.mp3",
+  "F#2": "samples_fart.wav",
+  "G2": "samples_tick.mp3",
+  "G#2": "tambourine-clean-hit-bright.wav",
+  "A2": "wood-2.wav",
+};
+
+//
+// ─── PERCUSSION NAME → NOTE KEY MAP ──────────────────────────
+//
+export const percussionSampleMap: Record<string, string> = {
+  "cardboard": "C1",
+  "cl-bongo-2": "C#1",
+  "drum-machine-kick": "D1",
+  "electro-kick": "D#1",
+  "layered-snare": "E1",
+  "metallic": "F1",
+  "plastic": "F#1",
+  "plastic-2": "G1",
+  "psytrance-kick": "G#1",
+  "samples_4": "A1",
+  "samples_bass": "A#1",
+  "samples_bongo": "B1",
+  "samples_bop": "C2",
+  "samples_cowbell": "C#2",
+  "samples_doom": "D2",
+  "samples_drum.mp3": "D#2",
+  "samples_drum-2.mp3": "E2",
+  "samples_drum-3.mp3": "F2",
+  "samples_fart": "F#2",
+  "samples_tick": "G2",
+  "tambourine-clean-hit-bright": "G#2",
+  "wood-2": "A2",
+};
+
+//
+// ─── SINGLETON CACHE ─────────────────────────────────────────
 const instrumentInstances: Record<string, Tone.PolySynth | Tone.Sampler> = {};
 
+//
+// ─── FACTORY ─────────────────────────────────────────────────
 function createInstrument(instrument: string): Tone.PolySynth | Tone.Sampler {
   if (instrument === "piano") {
     return new Tone.Sampler({
       urls: standardNoteAssignment,
       baseUrl: "https://twohiccups.github.io/instrument-sounds/piano-mp3/",
-      onload: () => console.log("Piano instrument loaded"),
+      onload: () => console.log("Piano loaded"),
     }).toDestination();
   } else if (instrument === "violin") {
     return new Tone.Sampler({
       urls: standardNoteAssignment,
       baseUrl: "https://twohiccups.github.io/instrument-sounds/violin-mp3/",
-      onload: () => console.log("Violin instrument loaded"),
+      onload: () => console.log("Violin loaded"),
+    }).toDestination();
+  } else if (instrument === "percussion") {
+    return new Tone.Sampler({
+      urls: percussionNoteUrls,
+      baseUrl: "https://twohiccups.github.io/instrument-sounds/percussion/",
+      onload: () => console.log("Percussion loaded"),
     }).toDestination();
   } else {
     return new Tone.PolySynth(Tone.Synth).toDestination();
   }
 }
 
-// ─── Hook ──────────────────────────────────────────────────────
-export default function useInstruments(instrument: string): Tone.PolySynth | Tone.Sampler | null {
-  const [synth, setSynth] = useState<Tone.PolySynth | Tone.Sampler | null>(null);
+//
+// ─── HOOK ────────────────────────────────────────────────────
+export default function useInstruments(
+  instrument: string
+): Tone.PolySynth | Tone.Sampler | null {
+  const [inst, setInst] = useState<Tone.PolySynth | Tone.Sampler | null>(null);
 
   useEffect(() => {
     if (!instrumentInstances[instrument]) {
       instrumentInstances[instrument] = createInstrument(instrument);
     }
-
-    const instance = instrumentInstances[instrument];
-    setSynth(instance);
-
-    return () => {
-      // Don't dispose singleton instance
-      setSynth(null);
-    };
+    setInst(instrumentInstances[instrument]);
+    return () => void setInst(null);
   }, [instrument]);
 
-  return synth;
+  return inst;
 }
