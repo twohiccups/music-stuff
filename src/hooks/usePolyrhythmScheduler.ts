@@ -1,4 +1,5 @@
-// src/hooks/usePolyrhythmScheduler.ts
+"use client"
+
 import { useEffect, useRef } from "react";
 import * as Tone from "tone";
 
@@ -33,7 +34,7 @@ export function usePolyrhythmScheduler(
             const step = Math.floor(transport.ticks / transport.PPQ) % globalLCM;
 
             // UI sync
-            Tone.Draw.schedule(() => {
+            Tone.getDraw().schedule(() => {
                 onTickRef.current(step, time);
             }, time);
         }, "4n", 0);
