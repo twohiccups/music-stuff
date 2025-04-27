@@ -1,22 +1,22 @@
+// components/RhythmCircle.tsx
 "use client";
 
 import React from "react";
 import { Box, useTheme } from "@mui/material";
 
 export interface Beat { isOn: boolean; }
-
-// (We only need the index if you want to map back to your trackControls,
-//  but layout uses the position in the active array to space the rings.)
 export interface Track {
     index: number;
-    beats: Beat[];
+    beats: Beat[];      // now full length = global LCM
+    isActive: boolean;
+    isMute: boolean;
 }
 
 interface Props {
     activeTracks: Track[];
     currentBeatIndex: number;
     lcm: number;
-    onToggleBeat: (trackIdx: number, beatIdx: number) => void;
+    onToggleBeat: (trackIdx: number, globalStep: number) => void;
 }
 
 export default function RhythmCircle({
@@ -32,21 +32,22 @@ export default function RhythmCircle({
         <Box
             sx={{
                 width: "100%",
-                maxWidth: "min(100vw, 100vh)",
-                aspectRatio: "1 / 1",
+                maxWidth: "min(100vw,100vh)",
+                aspectRatio: "1/1",
                 position: "relative",
                 mx: "auto",
             }}
         >
-            {activeTracks.map((track, trackIdx) =>
-                track.beats.map((beat, bi) => {
-                    const angle = (2 * Math.PI * bi) / lcm;
-                    const radiusPct = (trackIdx + 1) * ringStep;
+            {activeTracks.map((track, ti) =>
+                // now each track.beats.length === lcm
+                track.beats.map((beat, i) => {
+                    const angle = (2 * Math.PI * i) / lcm;
+                    const radiusPct = (ti + 1) * ringStep;
                     const xPct = 50 + radiusPct * Math.sin(angle);
                     const yPct = 50 - radiusPct * Math.cos(angle);
 
+                    const isCurrent = i === currentBeatIndex;
                     const diameter = beat.isOn ? "8%" : "4%";
-                    const isCurrent = bi === currentBeatIndex;
                     const bgColor = isCurrent
                         ? theme.palette.primary.main
                         : beat.isOn
@@ -56,9 +57,11 @@ export default function RhythmCircle({
 
                     return (
                         <Box
-                            key={`${track.index}-${bi}`}
+                            key={`t${track.index}-s${i}`}
                             component="span"
-                            onClick={() => onToggleBeat(track.index, bi)}
+                            onClick={() =>
+                                track.isActive && onToggleBeat(track.index, i)
+                            }
                             sx={{
                                 position: "absolute",
                                 top: `${yPct}%`,
@@ -68,12 +71,13 @@ export default function RhythmCircle({
                                 borderRadius: "50%",
                                 bgcolor: bgColor,
                                 border: `${borderW}px solid ${theme.palette.text.primary}`,
-                                transform: "translate(-50%, -50%)",
-                                cursor: "pointer",
+                                transform: "translate(-50%,-50%)",
+                                cursor: track.isActive ? "pointer" : "default",
+                                opacity: track.isActive ? 1 : 0.3,
                                 transition: "all 0.2s ease",
-                                p: "4px",
                                 "&:active": {
-                                    transform: "translate(-50%, -50%) scale(0.9)",
+                                    transform:
+                                        "translate(-50%,-50%) scale(0.9)",
                                 },
                             }}
                         />
