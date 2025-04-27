@@ -11,7 +11,7 @@ const pageActions = [
         name: "Settings",
         icon: <SettingsIcon />,
         onClick: () => alert("Open your settings…"),
-        mobileOnly: false
+        mobileOnly: true
     },
 ];
 

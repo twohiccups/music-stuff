@@ -3,6 +3,9 @@ import { createTheme } from "@mui/material/styles";
 // Extend MUI Palette to include custom chord & keyboard colors
 declare module '@mui/material/styles' {
   interface Palette {
+    custom: {
+      disabledBackground: string;
+    },
     chord: {
       active: string;
       inactive: string;
@@ -22,6 +25,9 @@ declare module '@mui/material/styles' {
     };
   }
   interface PaletteOptions {
+    custom?: {
+      disabledBackground?: string; // <-- NEW
+    },
     chord?: {
       active?: string;
       inactive?: string;
@@ -49,6 +55,9 @@ export const themes = {
       primary: { main: "#4A90E2", light: "#A2D2FF" },
       background: { default: "#f4f6f8", paper: "#ffffff" },
       text: { primary: "#000000" },
+      custom: {
+        disabledBackground: "#d1d9e6", // <-- NEW
+      },
       chord: {
         active: "#A2D2FF",
         inactive: "#E1E8F2",
@@ -75,6 +84,9 @@ export const themes = {
       primary: { main: "#90caf9", light: "#e3f2fd" },
       background: { default: "#121212", paper: "#1d1d1d" },
       text: { primary: "#eceff1" },
+      custom: {
+        disabledBackground: "#2c2c2c", // <-- NEW
+      },
       chord: {
         active: "#212121",
         inactive: "#424242",
@@ -101,6 +113,9 @@ export const themes = {
       primary: { main: "#268bd2", light: "#83afe5" },
       background: { default: "#fdf6e3", paper: "#eee8d5" },
       text: { primary: "#657b83" },
+      custom: {
+        disabledBackground: "#ddd6c1", // <-- NEW
+      },
       chord: {
         active: "#268bd2",
         inactive: "#eee8d5",
@@ -127,6 +142,9 @@ export const themes = {
       primary: { main: "#ffff00", light: "#ffff66" },
       background: { default: "#000000", paper: "#000000" },
       text: { primary: "#ffffff" },
+      custom: {
+        disabledBackground: "#555555", // <-- NEW
+      },
       chord: {
         active: "#ffff00",
         inactive: "#898989",
@@ -147,5 +165,6 @@ export const themes = {
     },
   }),
 };
+
 
 export type ThemeKey = keyof typeof themes;

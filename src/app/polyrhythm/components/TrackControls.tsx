@@ -1,8 +1,7 @@
-// components/TrackControls.tsx
 "use client";
 
 import React from "react";
-import { Box, IconButton, TextField } from "@mui/material";
+import { Box, IconButton, TextField, useTheme } from "@mui/material";
 import ToggleOnIcon from "@mui/icons-material/ToggleOn";
 import ToggleOffIcon from "@mui/icons-material/ToggleOff";
 import VolumeUpIcon from "@mui/icons-material/VolumeUp";
@@ -35,33 +34,46 @@ export default function TrackControls({
     onClearRhythm,
     onChangeBeatNumber,
 }: Props) {
+    const theme = useTheme();
+
     return (
         <Box
             sx={{
                 width: "100%",
-                p: { xs: 2, sm: 2 },
+                p: { xs: 1, sm: 2 },
                 border: 1,
                 borderColor: "divider",
                 borderRadius: 2,
-                bgcolor: "background.paper",
+                bgcolor: isActive
+                    ? "background.paper"
+                    : theme.palette.custom.disabledBackground, // <-- use theme's chord.inactive
                 display: "flex",
-                flexDirection: "row",            // always row
+                flexDirection: "row",
                 alignItems: "center",
                 justifyContent: "space-between",
-                gap: { xs: 1.5, sm: 2 },         // a bit tighter on xs
+                gap: { xs: 0.5, sm: 1.5 },
+                flexWrap: "nowrap",
+                transition: "background-color 0.3s",
+                opacity: isActive ? 1 : 0.3
             }}
         >
             {/* activation & mute toggles */}
-            <Box sx={{ display: "flex", gap: 1 }}>
+            <Box sx={{ display: "flex", gap: 0.5 }}>
                 <IconButton
                     onClick={onSwitchActive}
-                    sx={{ p: { xs: 1.25, sm: 1 }, "& .MuiSvgIcon-root": { fontSize: { xs: 24, sm: 28 } } }}
+                    sx={{
+                        p: 0.5,
+                        "& .MuiSvgIcon-root": { fontSize: 22 },
+                    }}
                 >
                     {isActive ? <ToggleOnIcon /> : <ToggleOffIcon />}
                 </IconButton>
                 <IconButton
                     onClick={onSwitchMute}
-                    sx={{ p: { xs: 1.25, sm: 1 }, "& .MuiSvgIcon-root": { fontSize: { xs: 24, sm: 28 } } }}
+                    sx={{
+                        p: 0.5,
+                        "& .MuiSvgIcon-root": { fontSize: 22 },
+                    }}
                 >
                     {isMute ? <VolumeOffIcon /> : <VolumeUpIcon />}
                 </IconButton>
@@ -70,24 +82,34 @@ export default function TrackControls({
             {/* beat count input */}
             <TextField
                 type="number"
-                inputProps={{ min: 1, max: 64 }}
+                inputProps={{
+                    min: 1,
+                    max: 64,
+                    style: { textAlign: "center", padding: "4px" },
+                }}
                 value={beatNumber}
                 onChange={(e) => onChangeBeatNumber(+e.target.value)}
                 size="small"
-                sx={{ width: { xs: "56px", sm: "64px" } }}
+                sx={{ width: "50px" }}
             />
 
             {/* rotation controls */}
-            <Box sx={{ display: "flex", gap: 1 }}>
+            <Box sx={{ display: "flex", gap: 0.5 }}>
                 <IconButton
                     onClick={onRotateCCW}
-                    sx={{ p: { xs: 1.25, sm: 1 }, "& .MuiSvgIcon-root": { fontSize: { xs: 24, sm: 28 } } }}
+                    sx={{
+                        p: 0.5,
+                        "& .MuiSvgIcon-root": { fontSize: 22 },
+                    }}
                 >
                     <RotateLeftIcon />
                 </IconButton>
                 <IconButton
                     onClick={onRotateCW}
-                    sx={{ p: { xs: 1.25, sm: 1 }, "& .MuiSvgIcon-root": { fontSize: { xs: 24, sm: 28 } } }}
+                    sx={{
+                        p: 0.5,
+                        "& .MuiSvgIcon-root": { fontSize: 22 },
+                    }}
                 >
                     <RotateRightIcon />
                 </IconButton>
@@ -96,7 +118,10 @@ export default function TrackControls({
             {/* clear/delete */}
             <IconButton
                 onClick={onClearRhythm}
-                sx={{ p: { xs: 1.25, sm: 1 }, "& .MuiSvgIcon-root": { fontSize: { xs: 24, sm: 28 } } }}
+                sx={{
+                    p: 0.5,
+                    "& .MuiSvgIcon-root": { fontSize: 22 },
+                }}
             >
                 <DeleteIcon />
             </IconButton>
