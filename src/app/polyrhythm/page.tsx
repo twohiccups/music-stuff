@@ -47,8 +47,12 @@ const Sequencer: React.FC = () => {
                         onSwitchMute={() => dispatch({ type: 'TOGGLE_MUTE', trackIdx: t.index })}
                         onRotateCW={() => dispatch({ type: 'ROTATE_CW', trackIdx: t.index })}
                         onRotateCCW={() => dispatch({ type: 'ROTATE_CCW', trackIdx: t.index })}
-                        onClearRhythm={() => dispatch({ type: 'REBUILD_BEATS', lcm })}
+                        onClearRhythm={() => dispatch({ type: 'CLEAR_BEATS', trackIdx: t.index })}
                         onChangeBeatNumber={n => dispatch({ type: 'CHANGE_BEATNUMBER', trackIdx: t.index, beatNumber: n })}
+                        sampleName={t.sampleName}
+                        onChangeSample={
+                            (name: string) => { dispatch({ type: 'CHANGE_SAMPLE', trackIdx: t.index, sampleName: name }) }
+                        }
                     />
                 ))}
             </Box>

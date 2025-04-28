@@ -32,7 +32,13 @@ type Action =
     | { type: "CHANGE_SAMPLE"; trackIdx: number; sampleName: string }
     | { type: "CHANGE_TEMPO"; tempo: number }
     | { type: "ROTATE_CW"; trackIdx: number }
-    | { type: "ROTATE_CCW"; trackIdx: number };
+    | { type: "ROTATE_CCW"; trackIdx: number }
+    | { type: "CLEAR_BEATS"; trackIdx: number }
+    | { type: "CHANGE_SAMPLE", trackIdx: number, sampleName: string };
+
+
+
+
 
 // ─── Helpers ────────────────────────────────────────────────
 function gcd(a: number, b: number): number { return b === 0 ? a : gcd(b, a % b); }
@@ -151,9 +157,33 @@ function reducer(state: State, action: Action): State {
                     t.index === action.trackIdx ? { ...t, isMute: !t.isMute } : t
                 ),
             };
-
+        case "CLEAR_BEATS":
+            return {
+                ...state,
+                tracks: state.tracks.map(t =>
+                    t.index === action.trackIdx
+                        ? {
+                            ...t,
+                            beats: t.beats.map(() => ({ isOn: false })),
+                        }
+                        : t
+                ),
+            };
+        case "CHANGE_SAMPLE":
+            return {
+                ...state,
+                tracks: state.tracks.map(t =>
+                    t.index === action.trackIdx
+                        ? {
+                            ...t,
+                            sampleName: action.sampleName
+                        }
+                        : t
+                )
+            }
         default:
             return state;
+
     }
 }
 
