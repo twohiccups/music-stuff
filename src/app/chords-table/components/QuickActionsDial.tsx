@@ -15,7 +15,7 @@ import {
     Close as CloseIcon,
 } from "@mui/icons-material";
 import PaletteIcon from "@mui/icons-material/Palette";
-import { useThemeContext } from "@src/contexts/themeContext";
+import { useThemeContext } from "@src/contexts/ThemeContext";
 
 interface QuickActionsDialProps {
     onOpenSettings: () => void;

@@ -1,24 +1,16 @@
-"use client"
+// src/app/polyrhythm/layout.tsx
+"use client";
 
-import { PageActionsProvider } from "@src/contexts/pageActionsContext";
-import { ReactNode } from "react";
-import SettingsIcon from "@mui/icons-material/Settings";
-import ActionMenu from "@app/components/ActionMenu";
-
-const pageActions = [
-    {
-        name: "Settings",
-        icon: <SettingsIcon />,
-        onClick: () => alert("Open your settings…"),
-        mobileOnly: true
-    },
-];
+import React, { ReactNode } from "react";
+import { PolyrhythmProvider } from "@src/contexts/PolyrhythmContext";
+import { CommonActionsProvider } from "@src/contexts/CommonActionsContext";
 
 export default function PolyrhythmLayout({ children }: { children: ReactNode }) {
     return (
-        <PageActionsProvider actions={pageActions}>
-            {children}
-            <ActionMenu />
-        </PageActionsProvider>
+        <PolyrhythmProvider>
+            <CommonActionsProvider>
+                {children}
+            </CommonActionsProvider>
+        </PolyrhythmProvider>
     );
 }

@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v15-appRouter';
 import "./globals.css";
-import { ThemeContextProvider } from "@src/contexts/themeContext";
+import { ThemeContextProvider } from "@src/contexts/ThemeContext";
 import { CssBaseline } from "@mui/material";
-import { CommonActionsProvider } from "@src/contexts/commonActionsContext";
+import { CommonActionsProvider } from "@src/contexts/CommonActionsContext";
 
 
 
@@ -38,7 +38,6 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
-
         <AppRouterCacheProvider>
           <ThemeContextProvider>
             <CommonActionsProvider>

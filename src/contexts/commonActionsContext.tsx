@@ -1,15 +1,11 @@
-// src/contexts/commonActionsContext.tsx
 "use client";
 
 import React, { createContext, useContext, ReactNode } from "react";
 import { Action } from "@src/types/types";
-import { Info as InfoIcon, Palette as PaletteIcon } from "@mui/icons-material";
-import { useThemeContext } from "@src/contexts/themeContext";
+import PaletteIcon from "@mui/icons-material/Palette";
+import { useThemeContext } from "@src/contexts/ThemeContext";
 
-// Create context for common actions
-type CommonActionsContextType = Action[];
-const CommonActionsContext = createContext<CommonActionsContextType>([]);
-
+const CommonActionsContext = createContext<Action[]>([]);
 export function useCommonActionsContext() {
     return useContext(CommonActionsContext);
 }
@@ -17,14 +13,7 @@ export function useCommonActionsContext() {
 export function CommonActionsProvider({ children }: { children: ReactNode }) {
     const { toggleThemeOptions } = useThemeContext();
 
-    // Define common actions array
-    const commonActions: Action[] = [
-        {
-            name: "Info",
-            icon: <InfoIcon />,
-            onClick: () =>
-                alert("This is a chord player. Choose a chord and hear how it sounds."),
-        },
+    const actions: Action[] = [
         {
             name: "Theme",
             icon: <PaletteIcon />,
@@ -33,7 +22,7 @@ export function CommonActionsProvider({ children }: { children: ReactNode }) {
     ];
 
     return (
-        <CommonActionsContext.Provider value={commonActions}>
+        <CommonActionsContext.Provider value={actions}>
             {children}
         </CommonActionsContext.Provider>
     );

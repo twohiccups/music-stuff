@@ -1,4 +1,3 @@
-// src/contexts/themeContext.tsx
 "use client";
 
 import React, { createContext, ReactNode, useContext, useEffect, useState } from "react";
@@ -57,7 +56,7 @@ export function ThemeContextProvider({ children }: { children: ReactNode }) {
         toggleThemeOptions,
       }}
     >
-      <MuiThemeProvider theme={themes[currentTheme]}>  
+      <MuiThemeProvider theme={themes[currentTheme]}>
         {children}
       </MuiThemeProvider>
     </ThemeContext.Provider>
