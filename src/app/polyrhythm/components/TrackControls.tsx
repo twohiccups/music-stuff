@@ -4,7 +4,6 @@ import React from "react";
 import {
     Box,
     IconButton,
-    TextField,
     useTheme,
     FormControl,
     InputLabel,
@@ -19,6 +18,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import RotateLeftIcon from "@mui/icons-material/RotateLeft";
 import RotateRightIcon from "@mui/icons-material/RotateRight";
 import { percussionSampleMap } from "@src/hooks/useInstruments";
+import CustomNumberInput from "./CustomNumberInput";
 
 interface Props {
     index: number;
@@ -91,18 +91,13 @@ export default function TrackControls({
             </Box>
 
             {/* beat count input */}
-            <TextField
-                type="number"
-                inputProps={{
-                    min: 1,
-                    max: 64,
-                    style: { textAlign: "center", padding: "4px" },
-                }}
+
+            <CustomNumberInput
                 value={beatNumber}
-                onChange={(e) => onChangeBeatNumber(+e.target.value)}
-                size="small"
-                sx={{ width: "50px" }}
+                onChange={onChangeBeatNumber}
             />
+
+
 
             {/* sample selector */}
             <FormControl size="small" sx={{ minWidth: 130, maxWidth: 130 }}>
