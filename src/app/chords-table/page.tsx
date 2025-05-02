@@ -86,7 +86,7 @@ export default function Page() {
           disableGutters
           sx={{
             height: '90vh',
-            pb: { xs: 10, md: 0 },
+            pb: { xs: 15, md: 0 },
             py: 0,
             overflowY: { xs: 'auto', md: 'visible' },
           }}
