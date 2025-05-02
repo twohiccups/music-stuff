@@ -9,7 +9,7 @@ import { chords } from '../data/constants';
 import useInstruments from '@src/hooks/useInstruments';
 import ChordNotation from '@app/chords-table/components/ChordNotation';
 import PianoKeyboard from '@app/chords-table/components/PianoKeyboard';
-import SettingsDialog from '@components/SettingsPanel';
+import SettingsDialog from '@app/chords-table/components/SettingsPanel';
 import ChordTable from '@app/chords-table/components/ChordTable';
 import ActionMenu from '@app/components/ActionMenu';
 import { PageActionsProvider } from '@src/contexts/PageActionsContext';
