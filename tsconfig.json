@@ -20,7 +20,6 @@
     ],
     "baseUrl": "./",
     "paths": {
-      "@components/*": ["src/app/chords-table/components/*"],
       "@app/*": ["src/app/*"],
       "@src/*": ["src/*"],
     }
