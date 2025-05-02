@@ -4,7 +4,7 @@ import React, { createContext, useContext, ReactNode, useState } from 'react';
 import { Action } from '@src/types/types';
 import PaletteIcon from '@mui/icons-material/Palette';
 import InfoDialog from '@app/polyrhythm/components/InfoDialog';
-import { useThemeContext } from '@/src/contexts/ThemeContext';
+import { useThemeContext } from '@src/contexts/ThemeContext';
 
 const CommonActionsContext = createContext<Action[]>([]);
 export function useCommonActionsContext() {
