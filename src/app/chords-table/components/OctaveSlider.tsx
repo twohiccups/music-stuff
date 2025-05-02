@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Box, Slider, Typography } from "@mui/material";
+import { Box, Slider } from "@mui/material";
 
 interface OctaveSliderProps {
     octave: number;
@@ -20,8 +20,6 @@ const OctaveSlider = ({ octave, setOctave }: OctaveSliderProps) => {
 
     return (
         <Box sx={{ my: 3, textAlign: "center" }}>
-            <Typography variant="h6">Octave</Typography>
-
             <Slider
                 min={minOctave}
                 max={maxOctave}

@@ -29,7 +29,7 @@ export default function SettingsPanel({ onClose }: SettingsPanelProps) {
     } = useThemeContext();
 
     return (
-        <Box sx={{ width: 300, p: 2 }}>
+        <Box sx={{ p: 2 }}>
             {/* Close button */}
             <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
                 <IconButton size="small" onClick={onClose}>

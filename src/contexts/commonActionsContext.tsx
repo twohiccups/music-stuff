@@ -1,9 +1,10 @@
-"use client";
+'use client';
 
-import React, { createContext, useContext, ReactNode } from "react";
-import { Action } from "@src/types/types";
-import PaletteIcon from "@mui/icons-material/Palette";
-import { useThemeContext } from "@src/contexts/ThemeContext";
+import React, { createContext, useContext, ReactNode, useState } from 'react';
+import { Action } from '@src/types/types';
+import PaletteIcon from '@mui/icons-material/Palette';
+import { useThemeContext } from '@src/contexts/ThemeContext';
+import InfoDialog from '@app/polyrhythm/components/InfoDialog';
 
 const CommonActionsContext = createContext<Action[]>([]);
 export function useCommonActionsContext() {
@@ -12,10 +13,11 @@ export function useCommonActionsContext() {
 
 export function CommonActionsProvider({ children }: { children: ReactNode }) {
     const { toggleThemeOptions } = useThemeContext();
+    const [infoOpen, setInfoOpen] = useState(false);
 
     const actions: Action[] = [
         {
-            name: "Theme",
+            name: 'Theme',
             icon: <PaletteIcon />,
             onClick: toggleThemeOptions,
         },
@@ -24,6 +26,7 @@ export function CommonActionsProvider({ children }: { children: ReactNode }) {
     return (
         <CommonActionsContext.Provider value={actions}>
             {children}
+            <InfoDialog open={infoOpen} onClose={() => setInfoOpen(false)} />
         </CommonActionsContext.Provider>
     );
 }

@@ -30,9 +30,9 @@ export default function ActionMenu() {
 
     const actions: Action[] = [
         // theme is already in `common`
-        ...common,
         settingsAction,
         ...page,    // e.g. Info
+        ...common,
     ];
 
     const WrapIcon = (icon: React.ReactNode) => (

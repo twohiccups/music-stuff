@@ -1,4 +1,3 @@
-// src/app/polyrhythm/components/InfoDialog.tsx
 "use client";
 
 import React from "react";
@@ -19,7 +18,7 @@ export default function InfoDialog({ open, onClose }: { open: boolean; onClose()
             </DialogTitle>
             <DialogContent dividers>
                 <Typography gutterBottom>
-                    This is a polyrtythm player.
+                    This is a chord player. Choose a chord and hear how it sounds.
                 </Typography>
                 {/* … */}
             </DialogContent>
