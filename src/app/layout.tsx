@@ -5,6 +5,7 @@ import "./globals.css";
 import { ThemeContextProvider } from "@src/contexts/ThemeContext";
 import { CssBaseline } from "@mui/material";
 import { CommonActionsProvider } from "@src/contexts/CommonActionsContext";
+import ThemeOptions from "./components/ThemeOptions";
 
 
 
@@ -42,12 +43,14 @@ export default function RootLayout({
           <ThemeContextProvider>
             <CommonActionsProvider>
               {children}
+              <ThemeOptions />
             </CommonActionsProvider>
             <CssBaseline />
           </ThemeContextProvider>
         </AppRouterCacheProvider>
-
       </body>
     </html >
   );
 }
+
+

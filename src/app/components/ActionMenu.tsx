@@ -1,26 +1,26 @@
-// src/app/components/ActionMenu.tsx
 "use client";
 
 import React from "react";
 import {
     SpeedDial,
-    SpeedDialIcon,
     SpeedDialAction,
+    SpeedDialIcon,
+    Box,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
-import CloseIcon from "@mui/icons-material/Close";
 import SettingsIcon from "@mui/icons-material/Settings";
+import CloseIcon from "@mui/icons-material/Close";
 import { useCommonActionsContext } from "@src/contexts/CommonActionsContext";
+import { useSettingsContext } from "./SidePanelLayout";
 import { usePageActionsContext } from "@src/contexts/PageActionsContext";
-import { useSettingsContext } from "./SidePanelLayout";  // <-- pull in openSettings
-import type { Action } from "@src/types/types";
+import { Action } from "@src/types/types";
 
 export default function ActionMenu() {
-    const common = useCommonActionsContext();   // e.g. Theme toggle
-    const page = usePageActionsContext();       // e.g. Info
-    const { openSettings } = useSettingsContext();
+    const common = useCommonActionsContext();        // only “Theme”
+    const page = usePageActionsContext();            // e.g. Info
+    const { openSettings } = useSettingsContext();   // from SidePanelLayout
 
-    // create a Settings action
+    // Explicit Settings action comes from our shared layout
     const settingsAction: Action = {
         name: "Settings",
         icon: <SettingsIcon />,
@@ -28,24 +28,41 @@ export default function ActionMenu() {
         mobileOnly: true
     };
 
-    // combine them all
-    const actions: Action[] = [...common, settingsAction, ...page];
+    const actions: Action[] = [
+        // theme is already in `common`
+        ...common,
+        settingsAction,
+        ...page,    // e.g. Info
+    ];
+
+    const WrapIcon = (icon: React.ReactNode) => (
+        <Box
+            sx={{
+                width: "100%",
+                height: "100%",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+            }}
+        >
+            {icon}
+        </Box>
+    );
 
     return (
         <SpeedDial
             ariaLabel="Quick actions"
-            icon={
-                <SpeedDialIcon icon={<MenuIcon />} openIcon={<CloseIcon />} />
-            }
+            icon={<SpeedDialIcon icon={<MenuIcon />} openIcon={<CloseIcon />} />}
             sx={{ position: "fixed", bottom: 12, right: 12, zIndex: 1200 }}
             direction="up"
         >
             {actions.map(({ name, icon, onClick, mobileOnly }) => (
                 <SpeedDialAction
                     key={name}
-                    icon={icon}
-                    tooltipTitle={name}
+                    icon={WrapIcon(icon)}
                     onClick={onClick}
+                    tooltipTitle={name}
+                    tooltipPlacement="left"
                     sx={{
                         display: mobileOnly
                             ? { xs: "block", md: "none" }

@@ -1,3 +1,4 @@
+// src/app/polyrhythm/components/TrackControls.tsx
 "use client";
 
 import React from "react";
@@ -65,17 +66,22 @@ export default function TrackControls({
                     ? "background.paper"
                     : theme.palette.custom.disabledBackground,
                 display: "flex",
-                flexDirection: "row",
-                alignItems: "center",
-                justifyContent: "space-between",
-                gap: { xs: 0.5, sm: 1.5 },
-                flexWrap: "nowrap",
+                flexWrap: { xs: "wrap", md: "nowrap" },
+                gap: { xs: 1, sm: 1.5 },
                 transition: "background-color 0.3s",
                 opacity: isActive ? 1 : 0.3,
             }}
         >
-            {/* activation & mute toggles */}
-            <Box sx={{ display: "flex", gap: 0.5 }}>
+            {/* First row: toggles + beat input */}
+            <Box
+                sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 0.5,
+                    flexBasis: { xs: "100%", md: "auto" },
+                    justifyContent: { xs: "center", md: "flex-start" },
+                }}
+            >
                 <IconButton
                     onClick={onSwitchActive}
                     sx={{ p: 0.5, "& .MuiSvgIcon-root": { fontSize: 22 } }}
@@ -88,36 +94,38 @@ export default function TrackControls({
                 >
                     {isMute ? <VolumeOffIcon /> : <VolumeUpIcon />}
                 </IconButton>
+                <CustomNumberInput
+                    value={beatNumber}
+                    onChange={onChangeBeatNumber}
+                />
             </Box>
 
-            {/* beat count input */}
+            {/* Second row: sample, rotate, clear */}
+            <Box
+                sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 0.5,
+                    flexBasis: { xs: "100%", md: "auto" },
+                    justifyContent: { xs: "center", md: "space-between" },
+                }}
+            >
+                <FormControl size="small" sx={{ minWidth: 130, maxWidth: 130 }}>
+                    <InputLabel id={`sample-select-${index}`}>Sample</InputLabel>
+                    <Select
+                        labelId={`sample-select-${index}`}
+                        value={sampleName}
+                        label="Sample"
+                        onChange={(e) => onChangeSample(e.target.value)}
+                    >
+                        {sampleNames.map((name) => (
+                            <MenuItem key={name} value={name}>
+                                {name}
+                            </MenuItem>
+                        ))}
+                    </Select>
+                </FormControl>
 
-            <CustomNumberInput
-                value={beatNumber}
-                onChange={onChangeBeatNumber}
-            />
-
-
-
-            {/* sample selector */}
-            <FormControl size="small" sx={{ minWidth: 130, maxWidth: 130 }}>
-                <InputLabel id={`sample-select-${index}`}>Sample</InputLabel>
-                <Select
-                    labelId={`sample-select-${index}`}
-                    value={sampleName}
-                    label="Sample"
-                    onChange={(e) => onChangeSample(e.target.value)}
-                >
-                    {sampleNames.map((name) => (
-                        <MenuItem key={name} value={name}>
-                            {name}
-                        </MenuItem>
-                    ))}
-                </Select>
-            </FormControl>
-
-            {/* rotation controls */}
-            <Box sx={{ display: "flex", gap: 0.5 }}>
                 <IconButton
                     onClick={onRotateCCW}
                     sx={{ p: 0.5, "& .MuiSvgIcon-root": { fontSize: 22 } }}
@@ -130,15 +138,13 @@ export default function TrackControls({
                 >
                     <RotateRightIcon />
                 </IconButton>
+                <IconButton
+                    onClick={onClearRhythm}
+                    sx={{ p: 0.5, "& .MuiSvgIcon-root": { fontSize: 22 } }}
+                >
+                    <DeleteIcon />
+                </IconButton>
             </Box>
-
-            {/* clear/delete */}
-            <IconButton
-                onClick={onClearRhythm}
-                sx={{ p: 0.5, "& .MuiSvgIcon-root": { fontSize: 22 } }}
-            >
-                <DeleteIcon />
-            </IconButton>
         </Box>
     );
 }
