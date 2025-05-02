@@ -12,7 +12,6 @@ import {
     Drawer,
     Modal,
     useMediaQuery,
-    ClickAwayListener,
     IconButton,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
@@ -122,14 +121,8 @@ export default function SidePanelLayout({
                     </Modal>
                 )}
 
-                {/* page content: clicking away on desktop closes */}
-                {isDesktop && open ? (
-                    <ClickAwayListener onClickAway={closeSettings}>
-                        <Box>{children}</Box>
-                    </ClickAwayListener>
-                ) : (
-                    <Box>{children}</Box>
-                )}
+
+                <Box>{children}</Box>
             </Box>
         </SettingsContext.Provider>
     );

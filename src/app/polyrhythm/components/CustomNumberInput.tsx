@@ -30,7 +30,7 @@ export default function CustomNumberField({ value, onChange }: CustomNumberField
         >
             {/* Label without scrub behavior */}
             <label htmlFor={id} className={styles.Label}>
-                Beat
+                Beat Number
             </label>
 
             <NumberField.Group className={styles.Group}>
