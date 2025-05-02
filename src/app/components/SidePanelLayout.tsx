@@ -58,7 +58,9 @@ export default function SidePanelLayout({ header, panel, children }: SidePanelLa
         <SettingsContext.Provider value={{ openSettings, closeSettings }}>
             <Box sx={{ width: '100%' }}>
                 {/* header slot */}
-                {header}
+                <Box sx={{ position: 'absolute' }}>
+                    {header}
+                </Box>
 
                 {/* desktop expander */}
                 {isDesktop && !open && (
