@@ -8,16 +8,16 @@ import PauseIcon from "@mui/icons-material/Pause";
 import * as Tone from "tone";
 
 export default function Header() {
-    const [isPlaying, setIsPlaying] = useState(true);
+    const [isPlaying, setIsPlaying] = useState(false);
     const toggle = () => {
-        if (isPlaying) Tone.Transport.pause();
-        else Tone.Transport.start();
+        if (isPlaying) Tone.getTransport().pause();
+        else Tone.getTransport().start();
         setIsPlaying(!isPlaying);
     };
 
     return (
         <IconButton onClick={toggle} aria-label="Play/Pause">
-            {isPlaying ? <PauseIcon /> : <PlayArrowIcon />}
+            {isPlaying ? <PauseIcon sx={{ width: 60, height: 60 }} /> : <PlayArrowIcon sx={{ width: 60, height: 60 }} />}
         </IconButton>
     );
 }
