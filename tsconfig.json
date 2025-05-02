@@ -18,7 +18,7 @@
         "name": "next"
       }
     ],
-    "baseUrl": ".",  // ✅ Required for paths to work
+    "baseUrl": "./",
     "paths": {
       "@components/*": ["src/app/chords-table/components/*"],
       "@app/*": ["src/app/*"],
