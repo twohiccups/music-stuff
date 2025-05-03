@@ -12,7 +12,7 @@ import React, {
 import * as Tone from "tone";
 
 // ─── Constants ───
-const difficultyCents = [2400, 1200, 600, 300, 200, 100, 50, 25, 10, 5];
+const difficultyCents = [2400, 1700, 1200, 600, 300, 200, 100, 50, 25, 10, 5, 3, 2, 1, 0.75, 0.5, 0.25, 0.1];
 const centsRatio = (c: number) => Math.pow(2, c / 1200);
 
 interface Challenge {
@@ -22,7 +22,7 @@ interface Challenge {
 }
 
 function generateChallenge(level: number): Challenge {
-    const base = 200 + Math.random() * 600;
+    const base = 300 + Math.random() * 300;
     const dir = Math.random() < 0.5 ? "up" : "down";
     const ratio = centsRatio(difficultyCents[level]);
     const second = dir === "up" ? base * ratio : base / ratio;
@@ -160,7 +160,7 @@ export function EarTrainingProvider({ children }: { children: ReactNode }) {
             } else if (e.code === "ArrowDown") {
                 guessDown();
             } else if (e.code === "Space") {
-                console.log("spaceship")
+                e.preventDefault();
                 if (!spaceCooldown) {
                     spaceCooldown = true;
                     replay();
