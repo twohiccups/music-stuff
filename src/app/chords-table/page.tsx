@@ -68,17 +68,15 @@ export default function Page() {
 
       <SidePanelLayout
         header={<Typography variant="h3" textAlign="center" sx={{ my: 2 }}>Chords Table</Typography>}
-        panel={({ onClose }) => (
+        panel={
           <SettingsDialog
-            onClose={onClose}
             instrument={instrument}
             setInstrument={setInstrument}
             octave={octave}
             setOctave={setOctave}
             selectedNote={selectedNote}
-            setSelectedNote={setSelectedNote}
-          />
-        )}
+            setSelectedNote={setSelectedNote} />
+        }
       >
         <InfoDialog open={infoOpen} onClose={() => setInfoOpen(false)} />
 

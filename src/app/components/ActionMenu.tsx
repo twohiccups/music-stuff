@@ -11,7 +11,7 @@ import MenuIcon from "@mui/icons-material/Menu";
 import SettingsIcon from "@mui/icons-material/Settings";
 import CloseIcon from "@mui/icons-material/Close";
 import { useCommonActionsContext } from "@src/contexts/CommonActionsContext";
-import { useSettingsContext } from "./SidePanelLayout";
+import { useSettingsContext } from "@src/contexts/SettingsContext";
 import { usePageActionsContext } from "@src/contexts/PageActionsContext";
 import { Action } from "@src/types/types";
 

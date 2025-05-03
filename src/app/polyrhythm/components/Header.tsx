@@ -16,7 +16,9 @@ export default function Header() {
     };
 
     return (
-        <IconButton onClick={toggle} aria-label="Play/Pause">
+        <IconButton onClick={toggle} aria-label="Play/Pause" sx={{
+            position: "absolute"
+        }}>
             {isPlaying ? <PauseIcon sx={{ width: 60, height: 60 }} /> : <PlayArrowIcon sx={{ width: 60, height: 60 }} />}
         </IconButton>
     );

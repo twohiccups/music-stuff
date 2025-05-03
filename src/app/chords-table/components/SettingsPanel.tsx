@@ -10,7 +10,6 @@ import OctaveSlider from '@app/chords-table/components/OctaveSlider';
 import MiniPianoKeyboard from '@app/chords-table/components/MiniPianoKeyboard';
 
 interface SettingsPanelProps {
-    onClose(): void;
     instrument: string;
     setInstrument: (instrument: string) => void;
     octave: number;

@@ -30,7 +30,7 @@ export default function PolyrhythmPage() {
         <PageActionsProvider actions={pageActions}>
             <SidePanelLayout
                 header={<Header />}
-                panel={({ onClose }) => <SettingsPanel onClose={onClose} />}
+                panel={<SettingsPanel />}
             >
                 {/* Info modal */}
                 <InfoDialog open={infoOpen} onClose={() => setInfoOpen(false)} />

@@ -11,11 +11,8 @@ import TrackControls from "./TrackControls";
 import { usePolyrhythm } from "@src/contexts/PolyrhythmContext";
 import { useThemeContext } from "@src/contexts/ThemeContext";
 
-interface SettingsPanelProps {
-    onClose(): void;
-}
 
-export default function SettingsPanel({ }: SettingsPanelProps) {
+export default function SettingsPanel() {
     const { state: { tempo, tracks }, dispatch } = usePolyrhythm();
     const {
     } = useThemeContext();
