@@ -53,7 +53,7 @@ export default function ActionMenu() {
         <SpeedDial
             ariaLabel="Quick actions"
             icon={<SpeedDialIcon icon={<MenuIcon />} openIcon={<CloseIcon />} />}
-            sx={{ position: "fixed", bottom: 12, right: 12, zIndex: 1200 }}
+            sx={{ position: "fixed", bottom: { xs: 70, md: 12 }, right: 12, zIndex: 1200 }}
             direction="up"
         >
             {actions.map(({ name, icon, onClick, mobileOnly }) => (

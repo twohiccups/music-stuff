@@ -99,7 +99,7 @@ export default function Page() {
               gap: 1.5,
               pb: 2,
               position: { xs: 'fixed', md: 'static' },
-              bottom: { xs: 0, md: 'auto' },
+              bottom: { xs: 55, md: 'auto' },
               left: { xs: 0, md: 'auto' },
               width: { xs: '100vw', md: 'auto' },
               zIndex: { xs: 1000, md: 'auto' },
