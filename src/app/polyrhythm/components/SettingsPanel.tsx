@@ -32,9 +32,6 @@ export default function SettingsPanel() {
             </Box>
 
             <Typography variant="subtitle2">Tracks</Typography>
-
-
-            {/* Track controls */}
             <Box sx={{ mt: 2, display: "flex", flexDirection: "column", gap: 1 }}>
                 {tracks.map((t) => (
                     <TrackControls

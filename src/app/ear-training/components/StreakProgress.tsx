@@ -8,6 +8,7 @@ export default function StreakProgress() {
     const {
         hasStarted,
         correctStreak,
+        streakLength,
         justLeveledUp,
         acknowledgeLevelUp,
     } = useEarTrainingContext();
@@ -30,7 +31,7 @@ export default function StreakProgress() {
             sx={{
                 width: "100%",
                 maxWidth: 400,
-                minHeight: 60, // stable shell to prevent layout shift
+                minHeight: 60,
                 display: "flex",
                 flexDirection: "column",
                 alignItems: "center",
@@ -42,7 +43,7 @@ export default function StreakProgress() {
                 <>
                     <LinearProgress
                         variant="determinate"
-                        value={showSuccess ? 100 : (correctStreak / 3) * 100}
+                        value={showSuccess ? 100 : (correctStreak / streakLength) * 100}
                         sx={{
                             width: "100%",
                             height: 10,
@@ -53,7 +54,9 @@ export default function StreakProgress() {
                         variant="h5"
                         sx={{ mt: 1, textAlign: "center", width: "100%" }}
                     >
-                        {showSuccess ? "✅ Level up! 🎉" : `Streak: ${correctStreak} / 3`}
+                        {showSuccess
+                            ? "✅ Level up! 🎉"
+                            : `Streak: ${correctStreak} / ${streakLength}`}
                     </Typography>
                 </>
             )}

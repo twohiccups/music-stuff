@@ -12,7 +12,11 @@ import React, {
 import * as Tone from "tone";
 
 // ─── Constants ───
-const difficultyCents = [2400, 1700, 1200, 600, 300, 200, 100, 50, 25, 10, 5, 3, 2, 1, 0.75, 0.5, 0.25, 0.1];
+export const difficultyCents = [
+    2400, 1800, 1200, 700, 600, 400, 300, 200, 100, 50,
+    25, 15, 10, 6, 3, 1.5, 1, 0.5, 0.25, 0.1,
+];
+
 const centsRatio = (c: number) => Math.pow(2, c / 1200);
 
 interface Challenge {
@@ -29,19 +33,24 @@ function generateChallenge(level: number): Challenge {
     return { base, second, dir };
 }
 
-// ─── State ───
+// ─── State & Actions ───
 interface EarTrainingState {
     levelIndex: number;
+    startingLevelIndex: number;
     correctStreak: number;
     currentChallenge: Challenge;
     hasStarted: boolean;
     justLeveledUp: boolean;
+    streakLength: number;
 }
 
 type Action =
     | { type: "START"; challenge: Challenge }
     | { type: "GUESS"; guess: "up" | "down" }
-    | { type: "ACKNOWLEDGE_LEVEL_UP" };
+    | { type: "ACKNOWLEDGE_LEVEL_UP" }
+    | { type: "SET_STARTING_LEVEL"; value: number }
+    | { type: "SET_STREAK_LENGTH"; value: number }
+    | { type: "RESET" };
 
 function earReducer(state: EarTrainingState, action: Action): EarTrainingState {
     switch (action.type) {
@@ -58,14 +67,14 @@ function earReducer(state: EarTrainingState, action: Action): EarTrainingState {
             let nextLevel = state.levelIndex;
             let justLeveledUp = false;
 
-            if (isCorrect && nextStreak >= 3 && nextLevel < difficultyCents.length - 1) {
+            if (isCorrect && nextStreak >= state.streakLength && nextLevel < difficultyCents.length - 1) {
                 nextLevel++;
                 nextStreak = 0;
                 justLeveledUp = true;
             }
 
             return {
-                hasStarted: true,
+                ...state,
                 levelIndex: nextLevel,
                 correctStreak: nextStreak,
                 currentChallenge: generateChallenge(nextLevel),
@@ -73,8 +82,23 @@ function earReducer(state: EarTrainingState, action: Action): EarTrainingState {
             };
         }
         case "ACKNOWLEDGE_LEVEL_UP":
+            return { ...state, justLeveledUp: false };
+        case "SET_STARTING_LEVEL":
             return {
                 ...state,
+                startingLevelIndex: action.value,
+                levelIndex: action.value,
+                currentChallenge: generateChallenge(action.value),
+            };
+        case "SET_STREAK_LENGTH":
+            return { ...state, streakLength: action.value };
+        case "RESET":
+            return {
+                ...state,
+                hasStarted: false,
+                levelIndex: state.startingLevelIndex,
+                correctStreak: 0,
+                currentChallenge: generateChallenge(state.startingLevelIndex),
                 justLeveledUp: false,
             };
         default:
@@ -89,10 +113,15 @@ interface EarTrainingContextValue {
     centsDiff: number;
     hasStarted: boolean;
     justLeveledUp: boolean;
+    startingLevelIndex: number;
+    streakLength: number;
     guessUp(): void;
     guessDown(): void;
     replay(): void;
     start(): void;
+    resetTraining(): void;
+    setStartingLevel(index: number): void;
+    setStreakLength(length: number): void;
     acknowledgeLevelUp(): void;
 }
 
@@ -102,10 +131,12 @@ const EarTrainingContext = createContext<EarTrainingContextValue | null>(null);
 export function EarTrainingProvider({ children }: { children: ReactNode }) {
     const [state, dispatch] = useReducer(earReducer, {
         levelIndex: 0,
+        startingLevelIndex: 0,
         correctStreak: 0,
         currentChallenge: generateChallenge(0),
         hasStarted: false,
         justLeveledUp: false,
+        streakLength: 3,
     });
 
     const synthRef = useRef<Tone.Synth | null>(null);
@@ -161,6 +192,9 @@ export function EarTrainingProvider({ children }: { children: ReactNode }) {
     };
 
     const acknowledgeLevelUp = () => dispatch({ type: "ACKNOWLEDGE_LEVEL_UP" });
+    const resetTraining = () => dispatch({ type: "RESET" });
+    const setStartingLevel = (index: number) => dispatch({ type: "SET_STARTING_LEVEL", value: index });
+    const setStreakLength = (value: number) => dispatch({ type: "SET_STREAK_LENGTH", value });
 
     useEffect(() => {
         let spaceCooldown = false;
@@ -198,10 +232,15 @@ export function EarTrainingProvider({ children }: { children: ReactNode }) {
         centsDiff: difficultyCents[state.levelIndex],
         hasStarted: state.hasStarted,
         justLeveledUp: state.justLeveledUp,
+        startingLevelIndex: state.startingLevelIndex,
+        streakLength: state.streakLength,
         guessUp,
         guessDown,
         replay,
         start,
+        resetTraining,
+        setStartingLevel,
+        setStreakLength,
         acknowledgeLevelUp,
     };
 
