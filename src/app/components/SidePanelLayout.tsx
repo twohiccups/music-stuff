@@ -111,7 +111,8 @@ function SidePanelLayoutContent({ header, panel, children }: SidePanelLayoutProp
 
 export default function SidePanelLayout(props: SidePanelLayoutProps) {
     return (
-        <SettingsProvider>
+        <SettingsProvider
+        >
             <SidePanelLayoutContent {...props} />
         </SettingsProvider>
     );

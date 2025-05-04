@@ -35,11 +35,13 @@ interface EarTrainingState {
     correctStreak: number;
     currentChallenge: Challenge;
     hasStarted: boolean;
+    justLeveledUp: boolean;
 }
 
 type Action =
     | { type: "START"; challenge: Challenge }
-    | { type: "GUESS"; guess: "up" | "down" };
+    | { type: "GUESS"; guess: "up" | "down" }
+    | { type: "ACKNOWLEDGE_LEVEL_UP" };
 
 function earReducer(state: EarTrainingState, action: Action): EarTrainingState {
     switch (action.type) {
@@ -48,22 +50,33 @@ function earReducer(state: EarTrainingState, action: Action): EarTrainingState {
                 ...state,
                 hasStarted: true,
                 currentChallenge: action.challenge,
+                justLeveledUp: false,
             };
         case "GUESS": {
             const isCorrect = action.guess === state.currentChallenge.dir;
             let nextStreak = isCorrect ? state.correctStreak + 1 : 0;
             let nextLevel = state.levelIndex;
+            let justLeveledUp = false;
+
             if (isCorrect && nextStreak >= 3 && nextLevel < difficultyCents.length - 1) {
                 nextLevel++;
                 nextStreak = 0;
+                justLeveledUp = true;
             }
+
             return {
                 hasStarted: true,
                 levelIndex: nextLevel,
                 correctStreak: nextStreak,
                 currentChallenge: generateChallenge(nextLevel),
+                justLeveledUp,
             };
         }
+        case "ACKNOWLEDGE_LEVEL_UP":
+            return {
+                ...state,
+                justLeveledUp: false,
+            };
         default:
             return state;
     }
@@ -75,10 +88,12 @@ interface EarTrainingContextValue {
     correctStreak: number;
     centsDiff: number;
     hasStarted: boolean;
+    justLeveledUp: boolean;
     guessUp(): void;
     guessDown(): void;
     replay(): void;
     start(): void;
+    acknowledgeLevelUp(): void;
 }
 
 const EarTrainingContext = createContext<EarTrainingContextValue | null>(null);
@@ -90,12 +105,11 @@ export function EarTrainingProvider({ children }: { children: ReactNode }) {
         correctStreak: 0,
         currentChallenge: generateChallenge(0),
         hasStarted: false,
+        justLeveledUp: false,
     });
 
     const synthRef = useRef<Tone.Synth | null>(null);
-    const challengeRef = useRef<Challenge>(state.currentChallenge); // NEW
-
-
+    const challengeRef = useRef<Challenge>(state.currentChallenge);
 
     useEffect(() => {
         synthRef.current = new Tone.Synth().toDestination();
@@ -117,13 +131,11 @@ export function EarTrainingProvider({ children }: { children: ReactNode }) {
         synth1.triggerAttackRelease(challenge.base, dur, now + offset);
         synth2.triggerAttackRelease(challenge.second, dur, now + dur + 0.2 + offset);
 
-        // Clean up after
         setTimeout(() => {
             synth1.dispose();
             synth2.dispose();
         }, 2000);
     }, []);
-
 
     useEffect(() => {
         if (state.hasStarted) {
@@ -148,7 +160,8 @@ export function EarTrainingProvider({ children }: { children: ReactNode }) {
         }, 100);
     };
 
-    // ⌨️ Key control with debounce
+    const acknowledgeLevelUp = () => dispatch({ type: "ACKNOWLEDGE_LEVEL_UP" });
+
     useEffect(() => {
         let spaceCooldown = false;
 
@@ -184,10 +197,12 @@ export function EarTrainingProvider({ children }: { children: ReactNode }) {
         correctStreak: state.correctStreak,
         centsDiff: difficultyCents[state.levelIndex],
         hasStarted: state.hasStarted,
+        justLeveledUp: state.justLeveledUp,
         guessUp,
         guessDown,
         replay,
         start,
+        acknowledgeLevelUp,
     };
 
     return (

@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import * as Tone from 'tone';
-import { Box, Container, Typography, useTheme } from '@mui/material';
+import { Box, Container, useTheme } from '@mui/material';
 import SidePanelLayout from '@app/components/SidePanelLayout';
 
 import { chords } from '../data/constants';
@@ -15,6 +15,7 @@ import ActionMenu from '@app/components/ActionMenu';
 import { PageActionsProvider } from '@src/contexts/PageActionsContext';
 import InfoDialog from '@app/chords-table/components/InfoDialog';
 import InfoIcon from "@mui/icons-material/Info";
+import PageTitleHeader from '@app/components/PageTitleHeader';
 
 // Convert base MIDI + mask → frequencies
 const maskToChord = (base: number, mask: number[]) =>
@@ -67,7 +68,7 @@ export default function Page() {
     <PageActionsProvider actions={pageActions}>
 
       <SidePanelLayout
-        header={<Typography variant="h3" textAlign="center" sx={{ my: 2 }}>Chords Table</Typography>}
+        header={<PageTitleHeader title="Chords Table" />}
         panel={
           <SettingsDialog
             instrument={instrument}
@@ -118,6 +119,6 @@ export default function Page() {
         <ActionMenu />
 
       </SidePanelLayout>
-    </PageActionsProvider>
+    </PageActionsProvider >
   );
 }
