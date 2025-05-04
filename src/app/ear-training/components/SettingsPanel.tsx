@@ -10,8 +10,7 @@ import {
     Button,
     SelectChangeEvent,
 } from "@mui/material";
-import { difficultyCents } from "./InfoDialog";
-import { useEarTrainingContext } from "@src/contexts/EarTrainingContext";
+import { difficultyCents, useEarTrainingContext } from "@src/contexts/EarTrainingContext";
 
 export default function SettingsPanel() {
     const {
