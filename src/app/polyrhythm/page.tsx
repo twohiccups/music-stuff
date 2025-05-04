@@ -36,7 +36,16 @@ export default function PolyrhythmPage() {
                 <InfoDialog open={infoOpen} onClose={() => setInfoOpen(false)} />
 
                 {/* Main visualizer */}
-                <Box sx={{ p: 0 }}>
+                <Box
+                    sx={{
+                        height: "100vh",
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        p: 2,
+                        overflowY: 'hidden'
+                    }}
+                >
                     <RhythmCircle
                         activeTracks={tracks.filter((t) => t.isActive)}
                         currentBeatIndex={currentBeat}
