@@ -32,10 +32,11 @@ export default function RhythmCircle({
         <Box
             sx={{
                 width: "100%",
-                maxWidth: "min(100vw,100vh)",
-                aspectRatio: "1/1",
+                aspectRatio: "1 / 1",
                 position: "relative",
                 mx: "auto",
+                px: { xs: 2, sm: 3, md: 0 }, // padding on small screens
+                maxWidth: { md: "min(100vw, 100vh)" },
             }}
         >
             {activeTracks.map((track, ti) =>

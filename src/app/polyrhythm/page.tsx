@@ -40,10 +40,10 @@ export default function PolyrhythmPage() {
                     sx={{
                         height: "100vh",
                         display: "flex",
+                        width: "100%",
                         justifyContent: "center",
                         alignItems: "center",
                         p: 2,
-                        overflowY: 'hidden'
                     }}
                 >
                     <RhythmCircle
