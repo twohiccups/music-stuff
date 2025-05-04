@@ -118,7 +118,7 @@ export default function InfoDialog({ open, onClose }: { open: boolean; onClose()
                 <Box component="ul" sx={{ pl: 3, mt: 1 }}>
                     <li>Use headphones and hum the pitches.</li>
                     <li>Close your eyes to improve focus.</li>
-                    <li>Take breaks — don't brute force!</li>
+                    <li>Take breaks — don&apos;t brute force!</li>
                     <li>Imagine singing the tones mentally.</li>
                     <li>Trust your first impression!</li>
                 </Box>
