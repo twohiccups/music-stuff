@@ -1,6 +1,7 @@
+// src/app/components/InfoDialogShell.tsx
 "use client";
 
-import React from "react";
+import React, { ReactNode } from "react";
 import {
     Dialog,
     DialogTitle,
@@ -15,12 +16,12 @@ import CloseIcon from "@mui/icons-material/Close";
 
 interface InfoDialogShellProps {
     open: boolean;
-    onClose(): void;
+    onClose: () => void;
     title: string;
-    children: React.ReactNode;
+    children: ReactNode;
 }
 
-export default function InfoDialogShell({
+export default function InfoDialog({
     open,
     onClose,
     title,
@@ -37,32 +38,29 @@ export default function InfoDialogShell({
             maxWidth={fullScreen ? false : "sm"}
             fullScreen={fullScreen}
             sx={{
-                '& .MuiDialog-paper': fullScreen
+                "& .MuiDialog-paper": fullScreen
                     ? {
-                        width: '100%',
-                        height: '100%',
+                        width: "100%",
+                        height: "100%",
                         margin: 0,
                         borderRadius: 0,
-                        display: 'flex',
-                        flexDirection: 'column',
+                        display: "flex",
+                        flexDirection: "column",
                     }
                     : {},
             }}
         >
-            <DialogTitle sx={{ flexShrink: 0 }}>
+            <DialogTitle sx={{ position: "relative", pr: 4 }}>
                 {title}
                 <IconButton
                     onClick={onClose}
-                    sx={{ position: "absolute", right: 8, top: 8 }}
+                    sx={{ position: "absolute", top: 8, right: 8 }}
                 >
                     <CloseIcon />
                 </IconButton>
             </DialogTitle>
 
-            <DialogContent
-                dividers
-                sx={{ flexGrow: 1, overflowY: "auto" }}
-            >
+            <DialogContent dividers sx={{ flexGrow: 1, overflowY: "auto" }}>
                 {children}
             </DialogContent>
 

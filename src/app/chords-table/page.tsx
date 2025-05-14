@@ -18,9 +18,10 @@ import SettingsDialog from '@app/chords-table/components/SettingsPanel';
 import ChordTable from '@app/chords-table/components/ChordTable';
 import ActionMenu from '@app/components/ActionMenu';
 import { PageActionsProvider } from '@src/contexts/PageActionsContext';
-import InfoDialog from '@app/chords-table/components/InfoDialog';
+import InfoDialog from '@app/components/InfoDialog';
 import InfoIcon from '@mui/icons-material/Info';
 import PageTitleHeader from '@app/components/PageTitleHeader';
+import ChordsTableInfoDialog from './components/ChordsTableInfoDialog';
 
 // helper ───────────────────────────────────────────────
 const maskToChord = (base: number, mask: number[]) =>
@@ -82,7 +83,10 @@ export default function Page() {
           />
         }
       >
-        <InfoDialog open={infoOpen} onClose={() => setInfoOpen(false)} />
+
+        <InfoDialog open={infoOpen} onClose={() => setInfoOpen(false)} title="Chords Table">
+          <ChordsTableInfoDialog />
+        </InfoDialog>
 
         {isMobile ? (
           <Box

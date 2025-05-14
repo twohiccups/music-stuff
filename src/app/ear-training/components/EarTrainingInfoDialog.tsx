@@ -3,14 +3,13 @@
 import React, { useRef } from "react";
 import { Typography, Box, Divider, Button } from "@mui/material";
 import * as Tone from "tone";
-import InfoDialogShell from "@app/components/InfoDialogShell"; // assuming this is your reusable shell
 
 export const difficultyCents = [
     2400, 1800, 1200, 700, 600, 400, 300, 200, 100, 50,
     25, 15, 10, 7, 5, 3, 2, 1.5, 1, 0.5, 0.25, 0.1
 ];
 
-export default function InfoDialog({ open, onClose }: { open: boolean; onClose(): void }) {
+export default function EarTrainingInfoDialog() {
     const lastSampleRef = useRef<number | null>(null);
 
     const playSample = (cents: number) => {
@@ -40,7 +39,7 @@ export default function InfoDialog({ open, onClose }: { open: boolean; onClose()
     };
 
     return (
-        <InfoDialogShell open={open} onClose={onClose} title="How to Use 🎧 Ear Training">
+        <>
             <Typography gutterBottom>
                 Welcome to <strong>🎧 Ear Training</strong> — a simple app to improve your pitch discrimination skills.
             </Typography>
@@ -123,6 +122,6 @@ export default function InfoDialog({ open, onClose }: { open: boolean; onClose()
                     <li>Trust your first impression!</li>
                 </Box>
             </Box>
-        </InfoDialogShell>
+        </>
     );
 }

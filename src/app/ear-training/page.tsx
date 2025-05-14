@@ -6,7 +6,7 @@ import { EarTrainingProvider } from "@src/contexts/EarTrainingContext";
 import InfoIcon from "@mui/icons-material/Info";
 import { PageActionsProvider } from "@src/contexts/PageActionsContext";
 import SidePanelLayout from "@app/components/SidePanelLayout";
-import InfoDialog from "./components/InfoDialog";
+import InfoDialog from "@app/components/InfoDialog";
 import SettingsPanel from "./components/SettingsPanel";
 import ActionMenu from "@app/components/ActionMenu";
 
@@ -16,9 +16,10 @@ import GuessButtons from "./components/GuessButtons";
 import StartOrRepeatButton from "./components/StartOrRepeatButton";
 import StreakProgress from "./components/StreakProgress";
 import PageTitleHeader from "@app/components/PageTitleHeader";
+import EarTrainingInfoDialog from "./components/EarTrainingInfoDialog";
 
 function EarTraining() {
-    const [infoOpen, setInfoOpen] = useState(false);
+    const [isInfoOpen, setInfoOpen] = useState(false);
 
     const pageActions = [
         {
@@ -37,7 +38,10 @@ function EarTraining() {
                         <PageTitleHeader title={'🎧 Ear Training'} sx={{ position: "absolute", left: '50%', transform: 'translateX(-50%)', }} />
                     </>
                 } panel={<SettingsPanel />}>
-                <InfoDialog open={infoOpen} onClose={() => setInfoOpen(false)} />
+                <InfoDialog open={isInfoOpen} onClose={() => { setInfoOpen(false) }} title={"🎧 Ear Training"} >
+                    <EarTrainingInfoDialog />
+                </InfoDialog>
+
                 <ActionMenu />
                 <Box
                     sx={{
