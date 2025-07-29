@@ -27,13 +27,13 @@ export default function FeatureCard({ title, description, href }: FeatureCardPro
                 sx={{
                     flexGrow: 1,
                     display: 'flex',
-                    flexDirection: 'column',
+                    alignItems: 'center',
                     justifyContent: 'center',
                     p: 2,
                 }}
             >
-                <CardContent>
-                    <Typography variant="h5" component="h2">
+                <CardContent sx={{ textAlign: 'center' }}>
+                    <Typography variant="h5" component="h2" gutterBottom>
                         {title}
                     </Typography>
                     <Typography variant="body2" color="text.secondary">

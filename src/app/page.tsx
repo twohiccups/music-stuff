@@ -2,7 +2,7 @@
 
 import {
   Box,
-  Grid,
+
   Typography,
   GlobalStyles,
 } from '@mui/material';
@@ -47,7 +47,16 @@ export default function Home() {
             Dive into chords, voicings, and complex rhythmic patterns
           </Typography>
 
-          <Grid container spacing={4} justifyContent="center" sx={{ mt: 4, width: '100%', maxWidth: 800 }}>
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 3,
+              width: '100%',
+              maxWidth: 600,
+              mt: 4,
+            }}
+          >
             <FeatureCard
               title="Chords Table"
               description="Browse chord voicings and progressions in an interactive grid."
@@ -68,7 +77,7 @@ export default function Home() {
               description="Adjust slider to match the sound."
               href="/sliding-intervals"
             />
-          </Grid>
+          </Box>
 
         </Box>
       </Box>
