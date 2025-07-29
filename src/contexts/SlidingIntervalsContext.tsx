@@ -1,7 +1,6 @@
 "use client";
 
-import React,
-{
+import React, {
     createContext,
     useContext,
     useState,
@@ -65,48 +64,39 @@ export function SlidingIntervalsProvider({
         return {
             baseFreq,
             interval,
-            targetFreq:
-                baseFreq * Math.pow(2, interval.semitones / 12),
+            targetFreq: baseFreq * Math.pow(2, interval.semitones / 12),
         };
     };
 
-    const [challenge, setChallenge] = useState<Challenge>(
-        getNewChallenge
-    );
-    const [userFreq, setUserFreq] =
-        useState(challenge.baseFreq);
-    const [volume, setVolume] = useState(1);
-    const [waveform, setWaveform] =
-        useState<Tone.ToneOscillatorType>("sawtooth");
+    const [challenge, setChallenge] = useState<Challenge>(getNewChallenge);
+    const [userFreq, setUserFreq] = useState(challenge.baseFreq);
+    const [volume, setVolume] = useState(0.25);
+    const [waveform, setWaveform] = useState<Tone.ToneOscillatorType>("sawtooth");
     const [toneStarted, setToneStarted] = useState(false);
 
-    // refs for oscillators and gains
     const baseOscRef = useRef<Tone.Oscillator | null>(null);
     const baseGainRef = useRef<Tone.Gain | null>(null);
     const userOscRef = useRef<Tone.Oscillator | null>(null);
     const userGainRef = useRef<Tone.Gain | null>(null);
 
+    // Compensation curve: higher gain for lower frequencies
+    const perceivedLoudnessFactor = (freq: number) => {
+        return 1 + 1.2 * Math.exp(-freq / 200); // tweak as needed
+    };
+
     const ensureAudioSetup = useCallback(async () => {
         if (!toneStarted) {
             await Tone.start();
 
-            // Base tone: routed through gain (silent until pressed)
             const baseGain = new Tone.Gain(0).toDestination();
-            const baseOsc = new Tone.Oscillator(
-                challenge.baseFreq,
-                waveform
-            ).connect(baseGain);
+            const baseOsc = new Tone.Oscillator(challenge.baseFreq, waveform).connect(baseGain);
             baseOsc.volume.value = -12;
             baseOsc.start();
             baseGainRef.current = baseGain;
             baseOscRef.current = baseOsc;
 
-            // User tone: routed through gain (silent until pressed)
             const userGain = new Tone.Gain(0).toDestination();
-            const userOsc = new Tone.Oscillator(
-                userFreq,
-                waveform
-            ).connect(userGain);
+            const userOsc = new Tone.Oscillator(userFreq, waveform).connect(userGain);
             userOsc.start();
             userGainRef.current = userGain;
             userOscRef.current = userOsc;
@@ -117,15 +107,13 @@ export function SlidingIntervalsProvider({
 
     useEffect(() => {
         if (baseOscRef.current) {
-            baseOscRef.current.frequency.value =
-                challenge.baseFreq;
+            baseOscRef.current.frequency.value = challenge.baseFreq;
         }
     }, [challenge]);
 
     useEffect(() => {
         if (userOscRef.current) {
-            userOscRef.current.frequency.value =
-                userFreq;
+            userOscRef.current.frequency.value = userFreq;
         }
     }, [userFreq]);
 
@@ -146,13 +134,15 @@ export function SlidingIntervalsProvider({
 
     const startUser = async () => {
         await ensureAudioSetup();
-        // ramp both base and user gains on press
-        baseGainRef.current?.gain.linearRampTo(1, 0.1);
-        userGainRef.current?.gain.linearRampTo(volume, 0.1);
+
+        const baseGain = volume * perceivedLoudnessFactor(challenge.baseFreq);
+        const userGain = volume * perceivedLoudnessFactor(userFreq);
+
+        baseGainRef.current?.gain.linearRampTo(baseGain, 0.1);
+        userGainRef.current?.gain.linearRampTo(userGain, 0.1);
     };
 
     const stopUser = () => {
-        // ramp both off on release
         baseGainRef.current?.gain.linearRampTo(0, 0.1);
         userGainRef.current?.gain.linearRampTo(0, 0.1);
     };
@@ -177,12 +167,9 @@ export function SlidingIntervalsProvider({
     );
 }
 
-export function useSlidingIntervalsContext():
-    SlidingIntervalsContextValue {
+export function useSlidingIntervalsContext(): SlidingIntervalsContextValue {
     const ctx = useContext(SlidingIntervalsContext);
     if (!ctx)
-        throw new Error(
-            "SlidingIntervalsContext must be used within provider"
-        );
+        throw new Error("SlidingIntervalsContext must be used within provider");
     return ctx;
 }

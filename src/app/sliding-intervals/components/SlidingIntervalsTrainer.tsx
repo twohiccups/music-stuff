@@ -3,11 +3,15 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Box, Typography, Slider } from "@mui/material";
+import { Box, Typography, Slider, useTheme } from "@mui/material";
 import { useSlidingIntervalsContext } from
     "@src/contexts/SlidingIntervalsContext";
 
 export default function SlidingIntervalsTrainer() {
+
+    const theme = useTheme()
+
+
     const {
         challenge,
         userFreq,
@@ -18,6 +22,7 @@ export default function SlidingIntervalsTrainer() {
 
     const [mounted, setMounted] = useState(false);
     const [centsDiff, setCentsDiff] = useState<number | null>(null);
+
     useEffect(() => setMounted(true), []);
     if (!mounted) return null;
 
@@ -34,13 +39,42 @@ export default function SlidingIntervalsTrainer() {
             Math.log2(userFreq / challenge.targetFreq);
         setCentsDiff(diff);
     };
-
-    const sliderStyles = {
-        '& .MuiSlider-thumb': { width: 4, height: 32, borderRadius: 2 },
-        '& .MuiSlider-track': { height: 16, borderRadius: 8 },
-        '& .MuiSlider-rail': { height: 16, borderRadius: 8, opacity: 0.5 },
+    const getFeedback = (centsDifference: number): string => {
+        centsDifference = Math.abs(centsDifference);
+        if (centsDifference < 3) return "🎯 Perfect!";
+        if (centsDifference < 8) return "💫 Excellent!";
+        if (centsDifference < 20) return "👍 Good job!";
+        if (centsDifference < 35) return "🙂 Close, keep refining!";
+        if (centsDifference < 60) return "🧐 Getting there";
+        return "👂 Keep going!";
     };
 
+
+    const radius = 32; // adjust as needed
+
+    const sliderStyles = {
+        '& .MuiSlider-thumb': {
+            width: 4,
+            height: 64,
+            borderRadius: 2,
+        },
+        '& .MuiSlider-track': {
+            height: 64,
+            borderTopLeftRadius: radius,
+            borderBottomLeftRadius: radius,
+            borderTopRightRadius: 0,
+            borderBottomRightRadius: 0,
+        },
+        '& .MuiSlider-rail': {
+            height: 64,
+            borderTopLeftRadius: radius,
+            borderBottomLeftRadius: radius,
+            borderTopRightRadius: radius,
+            borderBottomRightRadius: radius,
+            backgroundColor: theme.palette.primary.dark,
+            opacity: 0.5,
+        },
+    };
     return (
         <Box sx={{ p: 4, flexGrow: 1 }}>
             <Box sx={{ my: 4 }}>
@@ -59,11 +93,10 @@ export default function SlidingIntervalsTrainer() {
             </Box>
             {centsDiff !== null && (
                 <Typography variant="h6" align="center">
-                    {Math.abs(centsDiff) < 1
-                        ? 'Perfect!'
-                        : `Off by ${centsDiff.toFixed(1)} cents`}
+                    {getFeedback(centsDiff)} Off by {centsDiff.toFixed(1)} cents
                 </Typography>
             )}
+
         </Box>
     );
 }

@@ -1,6 +1,8 @@
 
-export default function InfoDialog() {
+export default function SlidingIntervalsInfoDialog() {
     return (
-        <></>
+        <>
+            Slide those sliders
+        </>
     )
 }
