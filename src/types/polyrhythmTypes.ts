@@ -1,8 +1,7 @@
-export interface Beat { isOn: boolean; }
 export interface Track {
     index: number;
     beatNumber: number;
-    beats: Beat[];            // length === state.lcm
+    beats: boolean[];            // length === state.lcm
     isActive: boolean;
     isMute: boolean;
     sampleName: string;       // which percussion sample to play
@@ -21,4 +20,19 @@ export interface RhythmPreset {
     tracks: Track[]; // Use full Track interface
 }
 
+
+
+type TrackData = {
+    index: number;
+    beatNumber: number;
+    isActive: boolean;
+    isMute: boolean;
+    sampleName: string;
+    beats: string | boolean[] | number[];
+};
+
+export type ParsedData = {
+    tracks?: TrackData[];
+    tempo?: number;
+};
 

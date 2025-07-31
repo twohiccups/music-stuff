@@ -4,7 +4,7 @@
 import React, { createContext, useContext, useReducer, useEffect, useRef } from "react";
 import * as Tone from "tone";
 import useInstruments, { percussionSampleMap } from "@src/hooks/useInstruments";
-import { RhythmPreset, State, Track } from "@src/types/polyrhythmTypes";
+import { ParsedData, RhythmPreset, State, Track } from "@src/types/polyrhythmTypes";
 
 
 
@@ -41,9 +41,9 @@ function rebuildState(tracks: Track[]): { tracks: Track[]; lcm: number } {
 
     const rebuilt = tracks.map(t => ({
         ...t,
-        beats: Array.from({ length: newLcm }, (_, i) => ({
-            isOn: t.isActive ? i % t.beatNumber === 0 : false,
-        })),
+        beats: Array.from({ length: newLcm }, (_, i) => (
+            t.isActive ? i % t.beatNumber === 0 : false
+        )),
     }));
 
     return { tracks: rebuilt, lcm: newLcm };
@@ -117,9 +117,9 @@ function reducer(state: State, action: Action): State {
             const normalizedTracks = rawTracks.map((t) => {
                 if (t.beats.length === newLcm) return t;
 
-                const autoBeats = Array.from({ length: newLcm }, (_, i) => ({
-                    isOn: t.isActive ? i % t.beatNumber === 0 : false,
-                }));
+                const autoBeats = Array.from({ length: newLcm }, (_, i) => (
+                    t.isActive ? i % t.beatNumber === 0 : false
+                ));
 
                 return { ...t, beats: autoBeats };
             });
@@ -138,7 +138,7 @@ function reducer(state: State, action: Action): State {
                 ...state,
                 tracks: state.tracks.map(t =>
                     t.index === action.trackIdx
-                        ? { ...t, beats: t.beats.map((b, i) => i === action.step ? { isOn: !b.isOn } : b) }
+                        ? { ...t, beats: t.beats.map((b, i) => i === action.step ? !b : b) }
                         : t
                 ),
             };
@@ -204,7 +204,7 @@ function reducer(state: State, action: Action): State {
                     t.index === action.trackIdx
                         ? {
                             ...t,
-                            beats: t.beats.map(() => ({ isOn: false })),
+                            beats: t.beats.map(() => false),
                         }
                         : t
                 ),
@@ -245,36 +245,55 @@ export const PolyrhythmProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     const sampler = useInstruments("percussion");
 
     const shareUrl = () => {
-        return JSON.stringify(state)
-    }
+        const compressed = {
+            ...state,
+            tracks: state.tracks.map(t => ({
+                ...t,
+                beats: t.beats.map(b => b ? 1 : 0).join(""), // <-- convert to string
+            })),
+        };
 
-    const loadFromUrl = () => {
-        if (typeof window === "undefined") return;
-
-        const url = new URL(window.location.href);
-        const data = url.searchParams.get("data");
-        if (!data) return;
-
-        try {
-            const parsed = JSON.parse(decodeURIComponent(data));
-            if (!parsed || typeof parsed !== "object") return;
-
-            dispatch({
-                type: "LOAD_PRESET",
-                preset: {
-                    name: "Imported",
-                    tempo: parsed.tempo ?? 120,
-                    tracks: parsed.tracks ?? [],
-                },
-            });
-
-            // Optionally clear the URL after loading
-            url.searchParams.delete("data");
-            window.history.replaceState({}, "", url.toString());
-        } catch (err) {
-            console.error("Invalid shared rhythm data:", err);
-        }
+        return encodeURIComponent(JSON.stringify(compressed));
     };
+
+
+const loadFromUrl = () => {
+    if (typeof window === "undefined") return;
+
+    const url = new URL(window.location.href);
+    const data = url.searchParams.get("data");
+    if (!data) return;
+
+    try {
+        const parsed: ParsedData = JSON.parse(decodeURIComponent(data));
+        if (!parsed || typeof parsed !== "object" || !Array.isArray(parsed.tracks)) return;
+
+        const parsedTracks = parsed.tracks.map((t): Track => ({
+            ...t,
+            beats: typeof t.beats === "string"
+                ? t.beats.split("").map((c: string): boolean => c === "1")
+                : Array.isArray(t.beats)
+                    ? t.beats.map((b): boolean => Boolean(b))
+                    : [],
+        }));
+
+        dispatch({
+            type: "LOAD_PRESET",
+            preset: {
+                name: "Imported",
+                tempo: parsed.tempo ?? 120,
+                tracks: parsedTracks,
+            },
+        });
+
+        // Optionally clear the URL after loading
+        url.searchParams.delete("data");
+        window.history.replaceState({}, "", url.toString());
+    } catch (err) {
+        console.error("Invalid shared rhythm data:", err);
+    }
+};
+
 
 
     // schedule once unless sampler or tempo changes
@@ -295,7 +314,7 @@ export const PolyrhythmProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
                 tracksRef.current.forEach((t) => {
                     if (!t.isActive || t.isMute) return;
-                    if (t.beats[next].isOn) {
+                    if (t.beats[next]) {
                         const note = percussionSampleMap[t.sampleName];
                         sampler.triggerAttackRelease(note, "8n", time);
                     }

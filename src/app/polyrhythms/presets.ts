@@ -13,7 +13,7 @@ export const RHYTHM_PRESETS: RhythmPreset[] = [
                 isActive: true,
                 isMute: false,
                 sampleName: "cardboard",
-                beats: [{ isOn: true }, { isOn: false }, { isOn: false }, { isOn: true }, { isOn: false }, { isOn: false }],
+                beats: [true, false, false, true, false, false],
             },
             {
                 index: 1,
@@ -21,7 +21,7 @@ export const RHYTHM_PRESETS: RhythmPreset[] = [
                 isActive: true,
                 isMute: false,
                 sampleName: "plastic",
-                beats: [{ isOn: true }, { isOn: false }, { isOn: true }, { isOn: false }, { isOn: true }, { isOn: false }],
+                beats: [true, false, true, false, true, false],
             }
         ],
     },

@@ -7,7 +7,7 @@ import { Box, useTheme } from "@mui/material";
 export interface Beat { isOn: boolean; }
 export interface Track {
     index: number;
-    beats: Beat[];      // now full length = global LCM
+    beats: boolean[];      // now full length = global LCM
     isActive: boolean;
     isMute: boolean;
 }
@@ -48,10 +48,10 @@ export default function RhythmCircle({
                     const yPct = 50 - radiusPct * Math.cos(angle);
 
                     const isCurrent = i === currentBeatIndex;
-                    const diameter = beat.isOn ? "8%" : "4%";
+                    const diameter = beat ? "8%" : "4%";
                     const bgColor = isCurrent
                         ? theme.palette.primary.main
-                        : beat.isOn
+                        : beat
                             ? theme.palette.text.primary
                             : theme.palette.text.secondary;
                     const borderW = isCurrent ? 3 : 1;
