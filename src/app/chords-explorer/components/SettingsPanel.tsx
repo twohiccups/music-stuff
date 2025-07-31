@@ -5,9 +5,9 @@ import {
     Box,
     Typography,
 } from '@mui/material';
-import InstrumentSelect from '@app/chords-table/components/InstrumentSelect';
-import OctaveSlider from '@app/chords-table/components/OctaveSlider';
-import MiniPianoKeyboard from '@app/chords-table/components/MiniPianoKeyboard';
+import InstrumentSelect from '@app/chords-explorer/components/InstrumentSelect';
+import OctaveSlider from '@app/chords-explorer/components/OctaveSlider';
+import MiniPianoKeyboard from '@app/chords-explorer/components/MiniPianoKeyboard';
 
 interface SettingsPanelProps {
     instrument: string;

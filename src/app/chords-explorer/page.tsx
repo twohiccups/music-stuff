@@ -12,16 +12,16 @@ import SidePanelLayout from '@app/components/SidePanelLayout';
 
 import { chords } from '../data/constants';
 import useInstruments from '@src/hooks/useInstruments';
-import ChordNotation from '@app/chords-table/components/ChordNotation';
-import PianoKeyboard from '@app/chords-table/components/PianoKeyboard';
-import SettingsDialog from '@app/chords-table/components/SettingsPanel';
-import ChordTable from '@app/chords-table/components/ChordTable';
+import ChordNotation from '@app/chords-explorer/components/ChordNotation';
+import PianoKeyboard from '@app/chords-explorer/components/PianoKeyboard';
+import SettingsDialog from '@app/chords-explorer/components/SettingsPanel';
+import ChordTable from '@app/chords-explorer/components/ChordTable';
 import ActionMenu from '@app/components/ActionMenu';
 import { PageActionsProvider } from '@src/contexts/PageActionsContext';
 import InfoDialog from '@app/components/AppInfoModal';
 import InfoIcon from '@mui/icons-material/Info';
 import PageTitleHeader from '@app/components/PageTitleHeader';
-import ChordsTableInfoDialog from './components/ChordsTableInfoDialog';
+import ChordExplorerInfoDialog from './components/ChordsTableInfoDialog';
 
 // helper ───────────────────────────────────────────────
 const maskToChord = (base: number, mask: number[]) =>
@@ -71,7 +71,7 @@ export default function Page() {
   return (
     <PageActionsProvider actions={pageActions}>
       <SidePanelLayout
-        header={<PageTitleHeader title="Chords Table" />}
+        header={<PageTitleHeader title="Chords Explorer" />}
         panel={
           <SettingsDialog
             instrument={instrument}
@@ -84,8 +84,8 @@ export default function Page() {
         }
       >
 
-        <InfoDialog open={infoOpen} onClose={() => setInfoOpen(false)} title="Chords Table">
-          <ChordsTableInfoDialog />
+        <InfoDialog open={infoOpen} onClose={() => setInfoOpen(false)} title="Chords Explorer">
+          <ChordExplorerInfoDialog />
         </InfoDialog>
 
         {isMobile ? (

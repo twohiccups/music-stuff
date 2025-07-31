@@ -8,7 +8,7 @@ import ShareIcon from "@mui/icons-material/Share";
 import * as Tone from "tone";
 import { keyframes } from "@emotion/react";
 import { usePolyrhythm } from "@src/contexts/PolyrhythmContext";
-import InfoDialog from "@app/chords-table/components/InfoDialog";
+import InfoDialog from "@app/chords-explorer/components/InfoDialog";
 
 // Glow animation keyframes
 const glow = keyframes`

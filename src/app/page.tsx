@@ -58,9 +58,9 @@ export default function Home() {
             }}
           >
             <FeatureCard
-              title="Chords Table"
-              description="Browse chords with sound and keyboard visualization."
-              href="/chords-table"
+              title="Chords Explorer"
+              description="Interactive chord grid with keyboard visualization."
+              href="/chords-explorer"
             />
             <FeatureCard
               title="Polyrhythms"
