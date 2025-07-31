@@ -4,27 +4,13 @@
 import React, { createContext, useContext, useReducer, useEffect, useRef } from "react";
 import * as Tone from "tone";
 import useInstruments, { percussionSampleMap } from "@src/hooks/useInstruments";
+import { RhythmPreset, State, Track } from "@src/types/polyrhythmTypes";
 
-// ─── Types ──────────────────────────────────────────────────
-export interface Beat { isOn: boolean; }
-export interface Track {
-    index: number;
-    beatNumber: number;
-    beats: Beat[];            // length === state.lcm
-    isActive: boolean;
-    isMute: boolean;
-    sampleName: string;       // which percussion sample to play
-}
 
-interface State {
-    tracks: Track[];
-    currentBeat: number;
-    lcm: number;
-    tempo: number;
-}
 
 type Action =
     | { type: "ADVANCE_BEAT"; next: number }
+    | { type: "LOAD_PRESET"; preset: RhythmPreset }
     | { type: "TOGGLE_BEAT"; trackIdx: number; step: number }
     | { type: "TOGGLE_ACTIVE"; trackIdx: number }
     | { type: "TOGGLE_MUTE"; trackIdx: number }
@@ -92,6 +78,60 @@ function reducer(state: State, action: Action): State {
     switch (action.type) {
         case "ADVANCE_BEAT":
             return { ...state, currentBeat: action.next };
+        case "LOAD_PRESET": {
+            const sampleNames = Object.keys(percussionSampleMap);
+
+            // Normalize to 4 tracks
+            const rawTracks: Track[] = Array.from({ length: 4 }, (_, idx) => {
+                const t = action.preset.tracks[idx];
+
+                if (!t) {
+                    return {
+                        index: idx,
+                        beatNumber: 4,
+                        isActive: false,
+                        isMute: false,
+                        sampleName: sampleNames[idx % sampleNames.length],
+                        beats: [],
+                    };
+                }
+
+                return {
+                    index: idx,
+                    beatNumber: t.beatNumber,
+                    isActive: t.isActive,
+                    isMute: t.isMute ?? false,
+                    sampleName: t.sampleName ?? sampleNames[idx % sampleNames.length],
+                    beats: t.beats ?? [],
+                };
+            });
+
+            const activeBeatNumbers = rawTracks
+                .filter((t) => t.isActive)
+                .map((t) => t.beatNumber);
+
+            const newLcm = activeBeatNumbers.length
+                ? activeBeatNumbers.reduce((acc, n) => lcm(acc, n), activeBeatNumbers[0])
+                : 1;
+
+            const normalizedTracks = rawTracks.map((t) => {
+                if (t.beats.length === newLcm) return t;
+
+                const autoBeats = Array.from({ length: newLcm }, (_, i) => ({
+                    isOn: t.isActive ? i % t.beatNumber === 0 : false,
+                }));
+
+                return { ...t, beats: autoBeats };
+            });
+
+            return {
+                ...state,
+                tempo: action.preset.tempo,
+                currentBeat: 0,
+                lcm: newLcm,
+                tracks: normalizedTracks,
+            };
+        }
 
         case "TOGGLE_BEAT":
             return {
@@ -187,7 +227,7 @@ function reducer(state: State, action: Action): State {
     }
 }
 
-const PolyrhythmContext = createContext<{ state: State; dispatch: React.Dispatch<Action> } | null>(null);
+const PolyrhythmContext = createContext<{ state: State; dispatch: React.Dispatch<Action>, shareUrl: () => string, loadFromUrl: () => void } | null>(null);
 
 export const PolyrhythmProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [state, dispatch] = useReducer(reducer, initialState);
@@ -204,6 +244,39 @@ export const PolyrhythmProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
     const sampler = useInstruments("percussion");
 
+    const shareUrl = () => {
+        return JSON.stringify(state)
+    }
+
+    const loadFromUrl = () => {
+        if (typeof window === "undefined") return;
+
+        const url = new URL(window.location.href);
+        const data = url.searchParams.get("data");
+        if (!data) return;
+
+        try {
+            const parsed = JSON.parse(decodeURIComponent(data));
+            if (!parsed || typeof parsed !== "object") return;
+
+            dispatch({
+                type: "LOAD_PRESET",
+                preset: {
+                    name: "Imported",
+                    tempo: parsed.tempo ?? 120,
+                    tracks: parsed.tracks ?? [],
+                },
+            });
+
+            // Optionally clear the URL after loading
+            url.searchParams.delete("data");
+            window.history.replaceState({}, "", url.toString());
+        } catch (err) {
+            console.error("Invalid shared rhythm data:", err);
+        }
+    };
+
+
     // schedule once unless sampler or tempo changes
     useEffect(() => {
         if (!sampler) return;
@@ -212,11 +285,11 @@ export const PolyrhythmProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         const start = async () => {
             await Tone.start();
             await Tone.loaded(); // ensure buffers loaded
-            Tone.Transport.cancel();
-            Tone.Transport.stop();
-            Tone.Transport.bpm.value = state.tempo;
+            Tone.getTransport().cancel();
+            Tone.getTransport().stop();
+            Tone.getTransport().bpm.value = state.tempo;
 
-            id = Tone.Transport.scheduleRepeat((time) => {
+            id = Tone.getTransport().scheduleRepeat((time) => {
                 const next = (beatRef.current + 1) % lcmRef.current;
                 dispatch({ type: "ADVANCE_BEAT", next });
 
@@ -229,18 +302,18 @@ export const PolyrhythmProvider: React.FC<{ children: React.ReactNode }> = ({ ch
                 });
             }, "8n");
 
-            Tone.Transport.start("+0.1");
+            Tone.getTransport().start("+0.1");
         };
 
         start();
         return () => {
-            if (id !== undefined) Tone.Transport.clear(id);
-            Tone.Transport.stop();
+            if (id !== undefined) Tone.getTransport().clear(id);
+            Tone.getTransport().stop();
         };
     }, [sampler, state.tempo]);
 
     return (
-        <PolyrhythmContext.Provider value={{ state, dispatch }}>
+        <PolyrhythmContext.Provider value={{ state, dispatch, shareUrl, loadFromUrl }}>
             {children}
         </PolyrhythmContext.Provider>
     );

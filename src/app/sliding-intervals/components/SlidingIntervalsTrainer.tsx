@@ -57,6 +57,7 @@ export default function SlidingIntervalsTrainer() {
             width: 4,
             height: 64,
             borderRadius: 2,
+            backgroundColor: !!centsDiff && Math.abs(centsDiff) < 3 ? "green" : ""
         },
         '& .MuiSlider-track': {
             height: 64,
@@ -91,11 +92,19 @@ export default function SlidingIntervalsTrainer() {
                     onTouchEnd={handleStop}
                 />
             </Box>
-            {centsDiff !== null && (
-                <Typography variant="h6" align="center">
-                    {getFeedback(centsDiff)} Off by {centsDiff.toFixed(1)} cents
-                </Typography>
-            )}
+            <Typography
+                variant="h6"
+                align="center"
+                sx={{
+                    minHeight: '1.5em', // Reserve space even when empty
+                    visibility: centsDiff === null ? 'hidden' : 'visible',
+                }}
+            >
+                {centsDiff !== null
+                    ? `${getFeedback(centsDiff)} Off by ${centsDiff.toFixed(1)} cents`
+                    : ''}
+            </Typography>
+
 
         </Box>
     );

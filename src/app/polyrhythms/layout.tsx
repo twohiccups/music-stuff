@@ -1,4 +1,4 @@
-// src/app/polyrhythm/layout.tsx
+// src/app/polyrhythms/layout.tsx
 "use client";
 
 import React, { ReactNode } from "react";

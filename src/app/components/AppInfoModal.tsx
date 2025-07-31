@@ -21,7 +21,7 @@ interface InfoDialogShellProps {
     children: ReactNode;
 }
 
-export default function InfoDialog({
+export default function AppInfoModal({
     open,
     onClose,
     title,

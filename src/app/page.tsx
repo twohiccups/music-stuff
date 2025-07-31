@@ -59,13 +59,13 @@ export default function Home() {
           >
             <FeatureCard
               title="Chords Table"
-              description="Browse chord voicings and progressions in an interactive grid."
+              description="Browse chords with sound and keyboard visualization."
               href="/chords-table"
             />
             <FeatureCard
-              title="Polyrhythm"
+              title="Polyrhythms"
               description="Explore and visualize complex rhythmic patterns."
-              href="/polyrhythm"
+              href="/polyrhythms"
             />
             <FeatureCard
               title="Ear Training"

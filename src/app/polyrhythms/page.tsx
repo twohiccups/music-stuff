@@ -1,7 +1,6 @@
-// src/app/polyrhythm/page.tsx
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react"; // ✅ include useEffect
 import { Box } from "@mui/material";
 import InfoIcon from "@mui/icons-material/Info";
 
@@ -10,22 +9,27 @@ import { PageActionsProvider } from "@src/contexts/PageActionsContext";
 
 import SidePanelLayout from "@app/components/SidePanelLayout";
 import ActionMenu from "@app/components/ActionMenu";
-import InfoDialog from "@app/components/InfoDialog";
-import SettingsPanel from "@app/polyrhythm/components/SettingsPanel";
-import RhythmCircle from "@app/polyrhythm/components/RhythmCircle";
+import AppInfoModal from "@app/components/AppInfoModal";
+import SettingsPanel from "@app/polyrhythms/components/SettingsPanel";
+import RhythmCircle from "@app/polyrhythms/components/RhythmCircle";
 
 import type { Action } from "@src/types/types";
-import Header from "@app/polyrhythm/components/Header";
-import PolyrhythmInfoDialog from "@app/polyrhythm/components/PolyrhythmInfoDialog";
+import Header from "@app/polyrhythms/components/Header";
+import PolyrhythmInfoDialog from "@app/polyrhythms/components/PolyrhythmInfoDialog";
 
 export default function PolyrhythmPage() {
-    const { state, dispatch } = usePolyrhythm();
+    const { state, dispatch, loadFromUrl } = usePolyrhythm();
     const { tracks, currentBeat, lcm } = state;
     const [infoOpen, setInfoOpen] = useState(false);
 
     const pageActions: Action[] = [
         { name: "Info", icon: <InfoIcon />, onClick: () => setInfoOpen(true) },
     ];
+
+    // ✅ Load rhythm from URL on first mount
+    useEffect(() => {
+        loadFromUrl();
+    }, []);
 
     return (
         <PageActionsProvider actions={pageActions}>
@@ -34,10 +38,9 @@ export default function PolyrhythmPage() {
                 panel={<SettingsPanel />}
             >
                 {/* Info modal */}
-
-                <InfoDialog open={infoOpen} onClose={() => setInfoOpen(false)} title="Polyrhythms" >
+                <AppInfoModal open={infoOpen} onClose={() => setInfoOpen(false)} title="Polyrhythms">
                     <PolyrhythmInfoDialog />
-                </InfoDialog>
+                </AppInfoModal>
 
                 {/* Main visualizer */}
                 <Box

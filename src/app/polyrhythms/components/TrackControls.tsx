@@ -1,4 +1,4 @@
-// src/app/polyrhythm/components/TrackControls.tsx
+// src/app/polyrhythms/components/TrackControls.tsx
 "use client";
 
 import React from "react";

@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Typography, Box, Paper, useTheme } from "@mui/material";
+import { Box, Paper, useTheme } from "@mui/material";
 import { useSlidingIntervalsContext } from "@src/contexts/SlidingIntervalsContext";
 
 export default function Header() {
@@ -10,9 +10,6 @@ export default function Header() {
 
     return (
         <Box sx={{ textAlign: "center", mb: 3 }}>
-            <Typography variant="h5" gutterBottom>
-                Match the interval using the slider
-            </Typography>
 
             <Paper
                 elevation={4}
