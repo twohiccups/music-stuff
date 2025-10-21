@@ -1,8 +1,7 @@
-'use client';
+﻿'use client';
 
 import {
   Box,
-
   Typography,
   GlobalStyles,
 } from '@mui/material';
@@ -40,11 +39,11 @@ export default function Home() {
             gap: 2,
           }}
         >
-          <Typography variant="h2" component="h1" gutterBottom>
-            Music Stuff !
+          <Typography variant='h2' component='h1' gutterBottom>
+            Music Apps
           </Typography>
-          <Typography variant="subtitle1" color="text.secondary" gutterBottom>
-            Dive into chords, voicings, and complex rhythmic patterns
+          <Typography variant='subtitle1' color='text.secondary' gutterBottom>
+            Dive into chords, voicings, modes, and complex rhythmic patterns
           </Typography>
 
           <Box
@@ -58,30 +57,33 @@ export default function Home() {
             }}
           >
             <FeatureCard
-              title="Chords Explorer"
-              description="Interactive chord grid with keyboard visualization."
-              href="/chords-explorer"
+              title='Chords Explorer'
+              description='Interactive chord grid with keyboard visualization.'
+              href='/chords-explorer'
             />
             <FeatureCard
-              title="Polyrhythms"
-              description="Explore and visualize complex rhythmic patterns."
-              href="/polyrhythms"
+              title='Modes Explorer'
+              description='Play through the seven modes with a responsive piano keyboard.'
+              href='/modes'
             />
             <FeatureCard
-              title="Ear Training"
-              description="Train your ear to recognize sounds."
-              href="/ear-training"
+              title='Polyrhythms'
+              description='Explore and visualize complex rhythmic patterns.'
+              href='/polyrhythms'
             />
             <FeatureCard
-              title="Sliding Intervals"
-              description="Adjust slider to match the sound."
-              href="/sliding-intervals"
+              title='Ear Training'
+              description='Train your ear to recognize sounds.'
+              href='/ear-training'
+            />
+            <FeatureCard
+              title='Sliding Intervals'
+              description='Adjust slider to match the sound.'
+              href='/sliding-intervals'
             />
           </Box>
-
         </Box>
       </Box>
-
     </>
   );
 }
