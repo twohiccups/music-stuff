@@ -61,11 +61,11 @@ export default function Home() {
               description='Interactive chord grid with keyboard visualization.'
               href='/chords-explorer'
             />
-            <FeatureCard
+            {/* <FeatureCard
               title='Modes Explorer'
               description='Play through the seven modes with a responsive piano keyboard.'
               href='/modes'
-            />
+            /> */}
             <FeatureCard
               title='Polyrhythms'
               description='Explore and visualize complex rhythmic patterns.'
